@@ -1,0 +1,6 @@
+telethon
+pymongo
+hurry
+audio-metadata
+requests
+mega.py

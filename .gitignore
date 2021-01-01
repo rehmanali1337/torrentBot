@@ -1,0 +1,10 @@
+
+Downloads/
+Torrents/
+tests.py
+Tmps/
+config.json
+sessionFiles/*
+.vscode
+__pycache__/
+*.zip

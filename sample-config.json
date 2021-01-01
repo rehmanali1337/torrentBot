@@ -1,0 +1,20 @@
+{
+    "EMAIL": "theyrealive@icloud.com",
+    "PASSWORD": "4(r*/D2GB79Gf3Mg@%Qs",
+    "API_ID": 121,
+    "API_HASH": "d15e36f95269",
+    "BOT_TOKEN": "12AAEVy8uL5Xko0XKNYTasVIgwN-cF8dG2yQ8",
+    "PHONE_NUMBER": "+92389",
+    "TARGET_CHANNEL_LINK": "https://t.me/tradingnchannel",
+    "ADMINS": [
+        "@re37"
+    ],
+    "BLACKLISTED_FILES": [
+        "cue",
+        "nfo",
+        "url",
+        "nzb"
+    ],
+    "MEGA_EMAIL": "@mail.com",
+    "MEGA_PASSWORD": ""
+}
