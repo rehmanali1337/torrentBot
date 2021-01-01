@@ -108,7 +108,7 @@ class TorrentAutomator:
             break
         createdFolderId = downloadedTorrent['folder_created']
         self.ts(self.sendToTarget(createdFolderId,
-                                  targetChannelLink, self.status), self.client.loop)
+                                  targetChannelLink, self.status), self.client.loop).result()
         await asyncio.sleep(0.8)
         await self.setStatus('Deleting torrent from seedr.cc ...')
         await self.seedr.deleteFolder(createdFolderId)
