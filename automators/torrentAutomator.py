@@ -108,7 +108,7 @@ class TorrentAutomator:
             break
         createdFolderId = downloadedTorrent['folder_created']
         self.ts(self.sendToTarget(createdFolderId,
-                                  targetChannelLink, self.status), self.bot.loop).result()
+                                  targetChannelLink, self.status), self.client.loop)
         await asyncio.sleep(0.8)
         await self.setStatus('Deleting torrent from seedr.cc ...')
         await self.seedr.deleteFolder(createdFolderId)
@@ -251,11 +251,11 @@ class TorrentAutomator:
             try:
                 self.status = self.ts(self.bot.send_message(self.userID, message),
                                       self.bot.loop).result()
+                await asyncio.sleep(1)
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
                 await asyncio.sleep(int(e.seconds) + 1)
-            await asyncio.sleep(0.8)
             return
         try:
             self.status = self.ts(self.status.edit(
