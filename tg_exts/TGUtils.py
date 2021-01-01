@@ -213,15 +213,6 @@ Uploaded : {size(uploaded)}'
         if not validSize(self.fileLocation):
             await self.setStatus('Too large to upload!')
         toSend = open(self.fileLocation, 'rb')
-        try:
-            title = self.title.split('\n')[0]
-            print('Creating fastfile')
-            fastFile = self.ts(upload_file(
-                self.client, toSend, fileName=title,
-                progress_callback=self.uploadPcb), self.client.loop).result()
-        except ValueError:
-            await self.setStatus(f'The file {self.title} is too large to upload!')
-            return
         extension = self.fileName.split('.')[-1]
         while True:
             try:
