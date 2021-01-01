@@ -36,6 +36,7 @@ db = DB()
 
 
 async def startAdminConv(event):
+    print('starting admin conv')
     conversation = AdminConversation(bot, client,
                                      torrentsQueue, megaQueue, ytQueue)
     await conversation.start(event)
