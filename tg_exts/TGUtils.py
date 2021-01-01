@@ -216,7 +216,6 @@ Uploaded : {size(uploaded)}'
         try:
             title = self.title.split('\n')[0]
             print('Creating fastfile')
-            print(title)
             fastFile = self.ts(upload_file(
                 self.client, toSend, fileName=title,
                 progress_callback=self.uploadPcb), self.client.loop).result()
@@ -227,6 +226,15 @@ Uploaded : {size(uploaded)}'
         while True:
             try:
                 if extension in voicePlayable:
+                    try:
+                        title = self.title.split('\n')[0]
+                        print('Creating fastfile')
+                        fastFile = self.ts(upload_file(
+                            self.client, toSend, fileName=title,
+                            progress_callback=self.uploadPcb), self.client.loop).result()
+                    except ValueError:
+                        await self.setStatus(f'The file {self.title} is too large to upload!')
+                        return
                     print('Sending as audio')
                     metadata = getMetadata(self.fileLocation)
                     data = TinyTag.get(self.fileLocation)
@@ -250,9 +258,18 @@ Uploaded : {size(uploaded)}'
                     break
                 elif extension in streamableFiles:
                     print('Sending as streamable...')
+                    try:
+                        title = self.fileLocation.split('/')[-1]
+                        print(title)
+                        print('Creating fastfile')
+                        fastFile = self.ts(upload_file(
+                            self.client, toSend, fileName=title,
+                            progress_callback=self.uploadPcb), self.client.loop).result()
+                    except ValueError:
+                        await self.setStatus(f'The file {self.title} is too large to upload!')
+                        return
                     duration, width, height = getVideoMetadata(
                         self.fileLocation)
-                    print(self.fileLocation)
                     attributes = [DocumentAttributeVideo(
                         duration, width, height, supports_streaming=True)]
                     self.ts(self.client.send_file(self.targetChannelLink,
