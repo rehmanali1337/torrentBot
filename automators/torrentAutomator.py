@@ -90,10 +90,10 @@ class TorrentAutomator:
         if magnet != None:
             addedTorrent = await self.seedr.downloadUsingMagnet(magnet)
         try:
-            self.setStatus(
+            await self.setStatus(
                 f'Downloading the torrent : {addedTorrent["title"]}')
         except KeyError:
-            self.setStatus(
+            await self.setStatus(
                 f'Could not download torrent for some reason!\nPlease Try again!')
             return
         while True:
