@@ -124,6 +124,7 @@ class TorrentAutomator:
             percent = int(data.get('progress')) - 1
             if percent < 0:
                 percent = 0
+            print(percent)
             if percent < 100:
                 torrentSize = size(int(data.get('size')))
                 name = data.get('name')
@@ -255,21 +256,23 @@ class TorrentAutomator:
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
+                print(f'Flood wait for {e.seconds}')
                 await asyncio.sleep(int(e.seconds) + 1)
             return
         try:
-            self.status = self.ts(self.status.edit(
-                message), self.bot.loop).result()
+            self.ts(self.status.edit(
+                message), self.bot.loop)
+            await asyncio.sleep(1)
         except rpcerrorlist.MessageNotModifiedError:
             pass
         except rpcerrorlist.FloodWaitError as e:
+            print(f'Flood wait for {e.seconds}')
             await asyncio.sleep(int(e.seconds) + 1)
-        await asyncio.sleep(1)
 
     async def uploadPcb(self, uploaded, total):
         if uploaded == total:
             await asyncio.sleep(1)
-            await self.setStatus('File sent!')
+            await self.setStatus('Upload Complete!')
             return
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
