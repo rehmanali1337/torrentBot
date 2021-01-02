@@ -124,7 +124,6 @@ class TorrentAutomator:
             percent = int(data.get('progress')) - 1
             if percent < 0:
                 percent = 0
-            print(percent)
             if percent < 100:
                 torrentSize = size(int(data.get('size')))
                 name = data.get('name')
@@ -188,7 +187,7 @@ class TorrentAutomator:
                     try:
                         if extension in voicePlayable:
                             self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
-                                                          supports_streaming=True, voice_note=True),
+                                                          supports_streaming=True),
                                     self.client.loop)
                         elif extension in streamableFiles:
                             self.ts(self.client.send_file(targetChannelLink,
