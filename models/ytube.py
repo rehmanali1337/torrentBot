@@ -81,7 +81,7 @@ class YTube:
         if self.fileName.endswith('.mkv'):
             await self.setStatus('Converting mkv file to mp4 ...')
             os.system(
-                f'ffmpeg -i {self.fileLocation} -codec copy {self.fileLocation}.mp4')
+                f'ffmpeg -i "{self.fileLocation}" -codec copy "{self.fileLocation}.mp4"')
             # ffmpeg.input(self.fileLocation).output(
             # f'{self.fileLocation}.mp4').run()
             self.fileLocation = f'{self.fileLocation}.mp4'
