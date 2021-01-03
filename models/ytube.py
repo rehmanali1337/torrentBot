@@ -67,9 +67,8 @@ class YTube:
         ydl_opts = {
             'format': f'{self.formatID}+bestaudio',
             'progress_hooks': [self.ytDownloadPcb],
-            'outtmpl': f'{self.fileName}.mp4'
+            'outtmpl': self.downloadLocation + '/%(title)s.%(ext)s'
         }
-        os.chdir(self.downloadLocation)
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.url])
         os.chdir(self.rootLocation)
@@ -171,12 +170,11 @@ Total Size : {d["_total_bytes_str"]}'
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
                 'preferredquality': '320',
-            }]
+            }],
+            'outtmpl': self.downloadLocation + '/ %(title)s.%(ext)s'
         }
-        os.chdir(self.downloadLocation)
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url=self.url, download=True)
-        os.chdir(self.rootLocation)
         self.fileLocation = glob(
             f'{self.downloadLocation}/*')[0]
         if self.fileLocation.split('/')[-1] == 'thumbnail':
