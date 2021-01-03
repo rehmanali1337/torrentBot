@@ -44,30 +44,27 @@ class TorrentAutomator:
 
     async def main(self):
         while True:
-            try:
-                print(
-                    f'Torrent Thread {self.threadName} waiting for torrent ...')
-                job = self.queue.get()
-                self.job = job
-                self.status = None
-                self.userID = job.get('userID')
-                self.seedr = Seedr(self.bot, self.client)
-                self.targetChannelLink = job.get("targetChannelLink")
-                downloadType = job.get('downloadType')
-                if downloadType == 'file':
-                    await self.handleTorrentFile()
-                    try:
-                        os.remove(job.get('fileLocation'))
-                    except FileNotFoundError:
-                        pass
-                    self.queue.task_done()
-                    continue
-                if downloadType == 'magnet':
-                    await self.handleMagnetLink()
-                    self.queue.task_done()
-                    continue
-            except:
-                pass
+            print(
+                f'Torrent Thread {self.threadName} waiting for torrent ...')
+            job = self.queue.get()
+            self.job = job
+            self.status = None
+            self.userID = job.get('userID')
+            self.seedr = Seedr(self.bot, self.client)
+            self.targetChannelLink = job.get("targetChannelLink")
+            downloadType = job.get('downloadType')
+            if downloadType == 'file':
+                await self.handleTorrentFile()
+                try:
+                    os.remove(job.get('fileLocation'))
+                except FileNotFoundError:
+                    pass
+                self.queue.task_done()
+                continue
+            if downloadType == 'magnet':
+                await self.handleMagnetLink()
+                self.queue.task_done()
+                continue
 
     async def handleMagnetLink(self):
         magnetLink = self.job.get('magnet')
