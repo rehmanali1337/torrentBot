@@ -60,8 +60,8 @@ class TGSender:
     async def setStatus(self, message):
         try:
             print(f'Setting status {message}')
-            self.status = self.ts(self.status.edit(
-                message), self.bot.loop).result()
+            self.ts(self.status.edit(
+                message), self.bot.loop)
             print(f'Set status : {message}')
             await asyncio.sleep(1)
         except rpcerrorlist.MessageNotModifiedError:
