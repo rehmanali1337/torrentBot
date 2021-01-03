@@ -66,7 +66,6 @@ class Mega:
         try:
             self.status = self.ts(self.status.edit(
                 message), self.bot.loop).result()
-            await asyncio.sleep(1)
         except rpcerrorlist.MessageNotModifiedError:
             pass
         except rpcerrorlist.FloodWaitError as e:
