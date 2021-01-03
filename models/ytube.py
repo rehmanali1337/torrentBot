@@ -71,7 +71,6 @@ class YTube:
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.url])
-        os.chdir(self.rootLocation)
         self.fileLocation = glob(
             f'{self.downloadLocation}/*')[0]
         if os.path.isdir(self.fileLocation):

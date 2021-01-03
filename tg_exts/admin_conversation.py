@@ -21,7 +21,7 @@ class AdminConversation:
         self.db = DB()
 
     async def start(self, event):
-        async with self.bot.conversation(event.peer_id) as conv:
+        async with self.bot.conversation(event.peer_id, timeout=1000) as conv:
             self.conv = conv
             await self.conv.send_message(
                 'Welcome to Skootbot!\nYou are admin of the bot.')

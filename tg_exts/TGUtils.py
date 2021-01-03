@@ -60,7 +60,7 @@ class MegaSender:
             try:
                 self.ts(self.status.edit(
                     message), self.bot.loop)
-                await asyncio.sleep(1)
+                # await asyncio.sleep(1)
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
@@ -391,7 +391,7 @@ class YoutubeAudioSender:
         bar = ''.center(int(percent/2), ':')
         bar = f'{bar}'
         finalBar = f'[{bar}{spacesBar}]   {percent}%'
-        message = f'Filename : {self.fileName}\n{finalBar}\nTotal Size : {size(total)}\n\
+        message = f'Filename : {self.title}\n{finalBar}\nTotal Size : {size(total)}\n\
 Uploaded : {size(uploaded)}'
         await self.setStatus(message)
 
