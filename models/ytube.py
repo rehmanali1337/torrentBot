@@ -28,8 +28,8 @@ class YTube:
         self.downloadLocation = f'{self.rootLocation}/Downloads/{threading.get_ident()}'
         self.thumbnailDir = f'{self.downloadLocation}/thumbnail'
         if not os.path.exists(self.downloadLocation):
-            os.mkdir(self.downloadLocation)
-            os.mkdir(self.thumbnailDir)
+            os.makedirs(self.downloadLocation)
+            os.makedirs(self.thumbnailDir)
         self.ts = asyncio.run_coroutine_threadsafe
 
     @staticmethod
