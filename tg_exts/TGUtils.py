@@ -399,7 +399,7 @@ Uploaded : {size(uploaded)}'
         if self.thumbnailLocation:
             await self.setStatus('Sending thumbnail ...')
             title = self.title.replace('.mp3', '')
-            caption = f'<b>{self.title}</b>'
+            caption = f'<b>{title}</b>'
             self.ts(self.client.send_file(self.targetChannelLink,
                                           self.thumbnailLocation, caption=caption),
                     self.client.loop)
