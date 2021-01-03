@@ -63,7 +63,7 @@ class Mega:
                 await asyncio.sleep(int(e.seconds) + 1)
             return
         try:
-            self.status = self.ts(self.status.edit(
+            self.ts(self.status.edit(
                 message), self.bot.loop)
         except rpcerrorlist.MessageNotModifiedError:
             pass
