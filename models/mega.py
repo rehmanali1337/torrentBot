@@ -56,7 +56,7 @@ class Mega:
         if self.status == None:
             try:
                 self.status = self.ts(
-                    self.bot.send_message(self.userID, message), self.bot.loop)
+                    self.bot.send_message(self.userID, message), self.bot.loop).result()
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
