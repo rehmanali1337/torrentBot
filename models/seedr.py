@@ -8,11 +8,9 @@ from random import randrange
 
 
 class Seedr:
-    def __init__(self, bot, client, magnet=None, torrentFile=None):
+    def __init__(self, magnet=None, torrentFile=None):
         f = open('config.json')
         self.config = json.load(f)
-        self.bot = bot
-        self.client = client
         self.magnet = magnet
         self.torrentFile = torrentFile
         self.auth = (self.config.get("EMAIL"), self.config.get("PASSWORD"))
