@@ -4,7 +4,7 @@ import youtube_dl
 import os
 from pprint import pprint
 import asyncio
-from tg_exts.TGUtils import YoutubeSender
+from tg_exts.TGUtils import YoutubeAudioSender, YoutuebeVideoSender
 from telethon.errors import rpcerrorlist
 import ffmpeg
 import threading
@@ -91,9 +91,9 @@ class YTube:
         self.fileName = self.fileLocation.split('/')[-1]
         thumbnailURL = info['thumbnails'][-1]['url']
         self.thumbnailLocation = self.download_file(thumbnailURL)
-        sender = YoutubeSender(self.bot, self.client, self.fileLocation,
-                               self.fileName, self.channelLink,
-                               self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
+        sender = YoutuebeVideoSender(self.bot, self.client, self.fileLocation,
+                                     self.fileName, self.channelLink,
+                                     self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
         await sender.send()
         await self.setStatus('Job completed!')
         await self.delete()
@@ -185,9 +185,9 @@ Total Size : {d["_total_bytes_str"]}'
         self.fileName = self.fileLocation.split('/')[-1]
         thumbnailURL = info['thumbnails'][-1]['url']
         self.thumbnailLocation = self.download_file(thumbnailURL)
-        sender = YoutubeSender(self.bot, self.client, self.fileLocation,
-                               self.fileName, self.channelLink,
-                               self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
+        sender = YoutubeAudioSender(self.bot, self.client, self.fileLocation,
+                                    self.fileName, self.channelLink,
+                                    self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
 
         await sender.send()
         await self.setStatus('Job completed!')
