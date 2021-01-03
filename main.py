@@ -36,7 +36,6 @@ db = DB()
 
 
 async def startAdminConv(event):
-    print('starting admin conv')
     conversation = AdminConversation(bot, client,
                                      torrentsQueue, megaQueue, ytQueue)
     await conversation.start(event)
@@ -60,19 +59,16 @@ bot.add_event_handler(startAdminConv, events.NewMessage(
 bot.add_event_handler(startUserConv, events.NewMessage(
     pattern='/start', func=validUser))
 
-print('Starting Torrent Threads ...')
 for i in range(4):
     automator = TorrentAutomator(i+1, bot, client, torrentsQueue)
     threading.Thread(target=automator.start,
                      name=f'Torrent Thread {i+1}').start()
 
-print('Starting Mega Threads ...')
 for i in range(2):
     megaAutomator = MegaAutomator(i+1, bot, client, megaQueue)
     threading.Thread(target=megaAutomator.start,
                      name=f'Mega Thread {i+1}').start()
 
-print('Starting Youtube Threads ...')
 for i in range(2):
     ytAutomator = YTAutomator(i+1, bot, client, ytQueue)
     threading.Thread(target=ytAutomator.start,
@@ -81,5 +77,5 @@ for i in range(2):
 
 bot.start(bot_token=BOT_TOKEN)
 client.start(phone=PHONE_NUMBER)
-print(' Bot is running ...')
+print(' Bot is up!')
 bot.run_until_disconnected()

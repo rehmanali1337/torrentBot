@@ -32,9 +32,11 @@ class Mega:
         downloaded = glob(f'{self.downloadLocation}/*')
         for p in downloaded:
             if os.path.isdir(p):
+                print('Sending folder ..')
                 await self.sendFolder(p)
                 continue
             if os.path.isfile(p):
+                print('Sending file ')
                 await self.sendFile(p)
                 continue
         await self.setStatus('Job complete!')
@@ -72,6 +74,7 @@ class Mega:
 
     async def sendFile(self, fileLocation):
         fileName = fileLocation.split('/')[-1]
+        print(f'Sending file location : {fileLocation}')
         sender = TGSender(self.bot, self.client,
                           fileLocation, fileName,
                           self.channelLink, self.status, title=fileName)

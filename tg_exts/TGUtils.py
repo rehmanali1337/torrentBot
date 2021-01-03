@@ -59,8 +59,10 @@ class TGSender:
 
     async def setStatus(self, message):
         try:
+            print(f'Setting status {message}')
             self.status = self.ts(self.status.edit(
                 message), self.bot.loop).result()
+            print(f'Set status : {message}')
             await asyncio.sleep(1)
         except rpcerrorlist.MessageNotModifiedError:
             pass
@@ -94,6 +96,7 @@ Uploaded : {size(uploaded)}'
         toSend = open(self.fileLocation, 'rb')
         try:
             title = self.title.split('\n')[0]
+            print('Creating fast file ...')
             fastFile = self.ts(upload_file(
                 self.client, toSend, fileName=title,
                 progress_callback=self.uploadPcb), self.client.loop).result()
