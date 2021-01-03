@@ -4,7 +4,7 @@ import threading
 import asyncio
 from glob import glob
 import shutil
-from tg_exts.TGUtils import TGSender
+from tg_exts.TGUtils import MegaSender
 
 
 class Mega:
@@ -75,7 +75,7 @@ class Mega:
     async def sendFile(self, fileLocation):
         fileName = fileLocation.split('/')[-1]
         print(f'Sending file location : {fileLocation}')
-        sender = TGSender(self.bot, self.client,
-                          fileLocation, fileName,
-                          self.channelLink, self.status, title=fileName)
+        sender = MegaSender(self.bot, self.client,
+                            fileLocation, fileName,
+                            self.channelLink, self.status, title=fileName)
         await sender.send()

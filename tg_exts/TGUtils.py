@@ -42,7 +42,110 @@ def validSize(filePath):
     return sizeInGB <= 2
 
 
-class TGSender:
+class MegaSender:
+    def __init__(self, bot, client,
+                 fileLocation, fileName, channelLink,
+                 status, title: str = None):
+        self.bot = bot
+        self.client = client
+        self.fileLocation = fileLocation
+        self.fileName = fileName
+        self.title = title
+        self.targetChannelLink = channelLink
+        self.status = status
+        self.ts = asyncio.run_coroutine_threadsafe
+
+    async def setStatus(self, message):
+        if self.status is not None:
+            try:
+                self.ts(self.status.edit(
+                    message), self.bot.loop)
+                await asyncio.sleep(1)
+            except rpcerrorlist.MessageNotModifiedError:
+                pass
+            except rpcerrorlist.FloodWaitError as e:
+                await asyncio.sleep(int(e.seconds) + 1)
+            return
+        print('Status is none')
+
+    async def uploadPcb(self, uploaded, total):
+        if uploaded == total:
+            await self.setStatus('File Uploaded!')
+            return
+        percent = int((uploaded/total) * 100)
+        if not hasattr(self, 'prevPercent'):
+            self.prevPercent = 0
+        if not percent > self.prevPercent:
+            return
+        self.prevPercent = percent
+        spaces = int(int(100 - percent)/2)
+        spacesBar = ''.center(spaces, ' ')
+        bar = ''.center(int(percent/2), ':')
+        bar = f'{bar}'
+        finalBar = f'[{bar}{spacesBar}]   {percent}%'
+        message = f'Filename : {self.fileName}\n{finalBar}\nTotal Size : {size(total)}\n\
+Uploaded : {size(uploaded)}'
+        await self.setStatus(message)
+
+    async def send(self):
+        voicePlayable = ['flac', 'mp3', 'MP3']
+        streamableFiles = ['mp4', 'MP4', 'Mp4', 'mP4']
+        if not validSize(self.fileLocation):
+            await self.setStatus('Too large to upload!')
+        toSend = open(self.fileLocation, 'rb')
+        try:
+            title = self.title.split('\n')[0]
+            fastFile = self.ts(upload_file(
+                self.client, toSend, fileName=title,
+                progress_callback=self.uploadPcb), self.client.loop).result()
+        except ValueError:
+            await self.setStatus(f'The file {self.title} is too large to upload!')
+            return
+        extension = self.fileName.split('.')[-1]
+        while True:
+            try:
+                if extension in voicePlayable:
+                    print('Sending as audio')
+                    metadata = getMetadata(self.fileLocation)
+                    data = TinyTag.get(self.fileLocation)
+                    try:
+                        performer = metadata.tags.artist[0] if metadata else None
+                        title = metadata.tags.title[0] if metadata else self.title.split('\n')[
+                            0]
+                        duration = metadata.streaminfo.duration if metadata else data.duration
+                    except AttributeError:
+                        performer = None
+                        title = self.title
+                        duration = data.duration
+                    attributes = [
+                        DocumentAttributeAudio(
+                            int(duration), performer=performer,
+                            voice=False, title=f'{title}.mp3')
+                    ]
+                    self.ts(self.client.send_file(self.targetChannelLink,
+                                                  fastFile, attributes=attributes, supports_streaming=True),
+                            loop=self.client.loop).result()
+                    break
+                elif extension in streamableFiles:
+                    print('Sending as streamable...')
+                    duration, width, height = getVideoMetadata(
+                        self.fileLocation)
+                    attributes = [DocumentAttributeVideo(
+                        duration, width, height, supports_streaming=True)]
+                    self.ts(self.client.send_file(self.targetChannelLink,
+                                                  fastFile, supports_streaming=True, attributes=attributes),
+                            self.client.loop).result()
+                    break
+                else:
+                    print('Sending as file ..')
+                    self.ts(self.client.send_file(self.targetChannelLink, fastFile),
+                            self.client.loop).result()
+                    break
+            except errors.rpcerrorlist.FloodWaitError as e:
+                await asyncio.sleep(int(e.seconds) + 5)
+
+
+class TorrentSender:
     def __init__(self, bot, client,
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
@@ -58,20 +161,21 @@ class TGSender:
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
-        try:
-            print(f'Setting status {message}')
-            self.ts(self.status.edit(
-                message), self.bot.loop)
-            print(f'Set status : {message}')
-            await asyncio.sleep(1)
-        except rpcerrorlist.MessageNotModifiedError:
-            pass
-        except rpcerrorlist.FloodWaitError as e:
-            await asyncio.sleep(int(e.seconds) + 1)
+        if self.status is not None:
+            try:
+                self.ts(self.status.edit(
+                    message), self.bot.loop)
+                await asyncio.sleep(1)
+            except rpcerrorlist.MessageNotModifiedError:
+                pass
+            except rpcerrorlist.FloodWaitError as e:
+                await asyncio.sleep(int(e.seconds) + 1)
+            return
+        print('Status is none')
 
     async def uploadPcb(self, uploaded, total):
         if uploaded == total:
-            await self.setStatus('File sent!')
+            await self.setStatus('File Uploaded!')
             return
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
