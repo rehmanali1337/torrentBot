@@ -133,7 +133,8 @@ class YTube:
             bar = ''.center(percent, ':')
             bar = f'{bar}'
             finalBar = f'[{bar}{spacesBar}] {d["_percent_str"]}'
-            message = f'Title : {d["filename"]}\n{finalBar}\n\
+            title = d["filename"].split('/')[-1]
+            message = f'Title : {title}\n{finalBar}\n\
 Downloading Speed : {d["_speed_str"]}\nETA : {d["_eta_str"]}\nTotal Size : {d["_total_bytes_str"]}'
             self.ts(self.setStatus(f'{message}'), self.bot.loop).result()
             return
@@ -141,6 +142,7 @@ Downloading Speed : {d["_speed_str"]}\nETA : {d["_eta_str"]}\nTotal Size : {d["_
             bar = ''.center(50, ':')
             bar = f'{bar}'
             finalBar = f'[{bar}] 100%'
+            title = d["filename"].split('/')[-1]
             try:
                 message = f'Title : {d["filename"]}\n{finalBar}\n\
 Elapsed : {d["_elapsed_str"]}\nTotal Size : {d["_total_bytes_str"]}'
