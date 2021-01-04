@@ -15,8 +15,20 @@ from automators.megaAutomator import MegaAutomator
 from automators.ytAutomator import YTAutomator
 
 
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.DEBUG)
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
+consoleHandler = logging.StreamHandler()
+consoleHandler.setLevel(logging.INFO)
+formator = logging.Formatter(
+    '[%(asctime)s] - [%(name)s] - %(levelname)s - %(message)s')
+consoleHandler.setFormatter(formator)
+if not os.path.exists('./logs'):
+    os.mkdir('logs')
+fileHandler = logging.FileHandler('logs/app.log')
+fileHandler.setLevel(logging.DEBUG)
+fileHandler.setFormatter(formator)
+logger.addHandler(fileHandler)
+logger.addHandler(consoleHandler)
 
 setup()
 f = open('config.json', 'r')

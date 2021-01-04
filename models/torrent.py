@@ -26,6 +26,7 @@ class Torrenter:
         self.magnet = magnet
         self.fileLocation = fileLocation
         self.seedr = Seedr()
+        self.logger = logging.getLogger(' Torrent Model ')
         self.ts = asyncio.run_coroutine_threadsafe
         self.rootLocation = os.getcwd()
         self.downloadLocation = f'{self.rootLocation}/Downloads/TorrentDownloads/{threading.get_ident()}'
@@ -36,27 +37,27 @@ class Torrenter:
         magnetLink = self.magnet
         targetChannelLink = self.targetChannelLink
         targetUser = self.userID
-        logging.info('Using magnet link ..')
+        self.logger.info('Using magnet link ..')
         await self.sendFolderContent(targetUser, targetChannelLink, magnet=magnetLink)
 
     async def handleTorrentFile(self):
         fileLocation = self.fileLocation
         targetChannelLink = self.targetChannelLink
         targetUser = self.userID
-        logging.info('Using torrent file ..')
+        self.logger.info('Using torrent file ..')
         await self.sendFolderContent(targetUser, targetChannelLink, uploadedTorrentFile=fileLocation)
 
     async def sendFolderContent(self, user, targetChannelLink, uploadedTorrentFile=None, magnet=None):
         if uploadedTorrentFile == None and magnet == None:
             return
         if uploadedTorrentFile != None:
-            logging.info('Downloading with file ..')
+            self.logger.info('Downloading with file ..')
             addedTorrent = await self.seedr.downloadUsingTorrentFile(uploadedTorrentFile)
             os.remove(uploadedTorrentFile)
         if magnet != None:
-            logging.info('Downloading with magnet ..')
+            self.logger.info('Downloading with magnet ..')
             addedTorrent = await self.seedr.downloadUsingMagnet(magnet)
-            logging.info(addedTorrent)
+            self.logger.info(addedTorrent)
         try:
             await self.setStatus(
                 f'Downloading the torrent : {addedTorrent["title"]}')
@@ -67,7 +68,7 @@ class Torrenter:
         while True:
             downloadedTorrent = await self.seedr.getTorrentData(addedTorrent['user_torrent_id'])
             if downloadedTorrent['code'] == 403:
-                logging.info('Torrent deleted!')
+                self.logger.info('Torrent deleted!')
                 await self.setStatus('Deleted!')
                 return
             await self.torrentToSeedrPCB(downloadedTorrent, addedTorrent['user_torrent_id'])
@@ -75,10 +76,11 @@ class Torrenter:
                 await asyncio.sleep(1)
                 continue
             break
-        logging.info('Download complete')
+        self.logger.info('Download complete')
         createdFolderId = downloadedTorrent['folder_created']
-        logging.info(f'Created folder : {downloadedTorrent["folder_created"]}')
-        logging.info('Sending to target channel ....')
+        self.logger.info(
+            f'Created folder : {downloadedTorrent["folder_created"]}')
+        self.logger.info('Sending to target channel ....')
         self.ts(self.sendToTarget(createdFolderId,
                                   targetChannelLink, self.status), self.client.loop).result()
         await asyncio.sleep(0.8)
@@ -119,14 +121,14 @@ class Torrenter:
         await self.seedr.filterDownloadedContent(folderId)
         cover_extensions = ['jpg', 'JPG', 'jpeg', 'JPEG', 'PNG', 'png']
         folderContent = await self.seedr.getFolderContent(folderID=folderId)
-        logging.info('Folder content is : ')
-        logging.info(folderContent)
+        self.logger.info('Folder content is : ')
+        self.logger.info(folderContent)
         for f in folderContent['files']:
-            logging.info(f'Sending file : {f.get("name")}')
+            self.logger.info(f'Sending file : {f.get("name")}')
             extension = f.get('name').split('.')[-1].lower()
             if extension in cover_extensions:
                 await asyncio.sleep(0.8)
-                logging.info(f"Sending as cover : {f.get('name')}")
+                self.logger.info(f"Sending as cover : {f.get('name')}")
                 await self.setStatus('Sending the cover image ...')
                 fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
                 try:
@@ -135,22 +137,22 @@ class Torrenter:
                 except errors.rpcerrorlist.WebpageCurlFailedError:
                     downloadedFile = await self.seedr.downloadFile(f.get('id'),
                                                                    f'{self.downloadLocation}/{f.get("name")}')
-                    logging.info(f'Download file : {downloadedFile}')
+                    self.logger.info(f'Download file : {downloadedFile}')
                     toSend = open(downloadedFile, 'rb')
                     self.ts(self.client.send_file(
                         targetChannelLink, toSend), self.client.loop).result()
                     os.remove(downloadedFile)
                 await asyncio.sleep(0.8)
-                logging.info(f'File sent : {f.get("name")}')
+                self.logger.info(f'File sent : {f.get("name")}')
                 await self.setStatus('Cover image sent!')
         if len(folderContent['folders']) != 0:
-            logging.info('Folders found!')
+            self.logger.info('Folders found!')
             for folder in folderContent['folders']:
-                logging.info(f'Sending folder : {folder}')
+                self.logger.info(f'Sending folder : {folder}')
                 await self.sendToTarget(folder['id'], targetChannelLink, status)
         files = sorted(folderContent['files'], key=itemgetter('name'))
         for f in files:
-            logging.info(f'Sending file : {f}')
+            self.logger.info(f'Sending file : {f}')
             self.fileName = f.get("name")
             voicePlayable = ['flac', 'mp3', 'MP3']
             streamableFiles = ['mp4', 'MP4', 'Mp4', 'mP4']
@@ -164,62 +166,62 @@ class Torrenter:
                 while True:
                     try:
                         if extension in voicePlayable:
-                            logging.info(
+                            self.logger.info(
                                 f'Sending file {self.fileName} as voicePlayable ..')
                             self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
                                                           supports_streaming=True),
                                     self.client.loop).result()
-                            logging.info(f'Sent : {self.fileName}')
+                            self.logger.info(f'Sent : {self.fileName}')
                             break
                         elif extension in streamableFiles:
-                            logging.info(
+                            self.logger.info(
                                 f'Sending file {self.fileName} as voicePlayable ..')
                             self.ts(self.client.send_file(targetChannelLink,
                                                           fileDownloadLink, supports_streaming=True),
                                     self.client.loop).result()
-                            logging.info(f'Sent : {self.fileName}')
+                            self.logger.info(f'Sent : {self.fileName}')
                             break
                         else:
-                            logging.info(
+                            self.logger.info(
                                 f'Sending as raw file : {self.fileName}')
                             self.ts(self.client.send_file(
                                 targetChannelLink, fileDownloadLink), self.client.loop).result()
-                            logging.info(f'Sent : {self.fileName}')
+                            self.logger.info(f'Sent : {self.fileName}')
                             break
                     except errors.rpcerrorlist.FloodWaitError as e:
-                        logging.info(
+                        self.logger.info(
                             f'Flood wait error!\nWaiting for {e.seconds} seconds before retry!')
                         await asyncio.sleep(int(e.seconds) + 5)
                         continue
 
             except errors.rpcerrorlist.WebpageCurlFailedError:
-                logging.info(f'Telegram failed to fetch {self.fileName}')
-                logging.info('Using local download ...')
+                self.logger.info(f'Telegram failed to fetch {self.fileName}')
+                self.logger.info('Using local download ...')
                 downloadedFile = await self.seedr.downloadFile(f.get('id'),
                                                                f'{self.downloadLocation}/{f.get("name")}')
-                logging.info('File download complete!')
-                logging.info(f'Downloadd file location : {downloadedFile}')
+                self.logger.info('File download complete!')
+                self.logger.info(f'Downloadd file location : {downloadedFile}')
                 if not self.validSize(downloadedFile):
-                    logging.info('File size is not valid ...')
+                    self.logger.info('File size is not valid ...')
                     continue
                 toSend = open(downloadedFile, 'rb')
                 try:
-                    logging.info('Creating fast file ...')
+                    self.logger.info('Creating fast file ...')
                     fastFile = self.ts(upload_file(self.client, toSend, fileName=f.get("name"),
                                                    progress_callback=self.uploadPcb),
                                        self.client.loop).result()
-                    logging.info('Fast file created!')
+                    self.logger.info('Fast file created!')
                 except ValueError:
                     await asyncio.sleep(0.8)
                     await self.setStatus(
                         f'The file {f.get("name")} is too large to upload!')
-                    logging.info(
+                    self.logger.info(
                         f'File is too larget to upload:  {self.fileName}')
                     continue
                 while True:
                     try:
                         if extension in voicePlayable:
-                            logging.info(
+                            self.logger.info(
                                 f'Sending as voiceplayable : {downloadedFile}')
                             metadata = self.getMetadata(downloadedFile)
                             attributes = [
@@ -229,11 +231,11 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink, fastFile,
                                                           attributes=attributes, supports_streaming=True),
                                     self.client.loop)
-                            logging.info(
+                            self.logger.info(
                                 f'File sent complete : {downloadedFile}')
                             break
                         elif extension in streamableFiles:
-                            logging.info(
+                            self.logger.info(
                                 f'Sending as streamable file : {downloadedFile}')
                             duration, width, height = self.getVideoMetadata(
                                 downloadedFile)
@@ -242,23 +244,24 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink, fastFile,
                                                           supports_streaming=True, attributes=attributes),
                                     self.client.loop)
-                            logging.info(
+                            self.logger.info(
                                 f'File send complete : {downloadedFile}')
                             break
                         else:
-                            logging.info(
+                            self.logger.info(
                                 f'Sending as raw file : {downloadedFile}')
                             self.ts(self.client.send_file(targetChannelLink, fastFile),
                                     self.client.loop)
-                            logging.info(
+                            self.logger.info(
                                 f'File send complete : {downloadedFile}')
                             break
                     except errors.rpcerrorlist.FloodWaitError as e:
-                        logging.info(
+                        self.logger.info(
                             f'Flood wait error! \nWaiting for {e.seconds} seconds before retry!')
                         await asyncio.sleep(int(e.seconds) + 5)
                         continue
-                logging.info(f'Deleting downloaded file : {downloadedFile}')
+                self.logger.info(
+                    f'Deleting downloaded file : {downloadedFile}')
                 os.remove(downloadedFile)
 
     async def setStatus(self, message):

@@ -7,6 +7,7 @@ from telethon.tl.custom import Button
 from queue import Queue
 from models.seedr import Seedr
 from models.ytube import getAllFormats, getVideosLinks
+import logging
 
 
 class AdminConversation:
@@ -19,6 +20,7 @@ class AdminConversation:
         self.ytQueue = ytQueue
         self.utils = Utils()
         self.db = DB()
+        self.logger = logging.getLogger(' Admin Conv ')
 
     async def start(self, event):
         async with self.bot.conversation(event.peer_id, timeout=1000) as conv:

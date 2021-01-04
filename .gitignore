@@ -8,3 +8,4 @@ sessionFiles/*
 .vscode
 __pycache__/
 *.zip
+logs/*
