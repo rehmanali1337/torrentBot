@@ -236,7 +236,7 @@ Total Size : {d["_total_bytes_str"]}'
                     result['entries'][i]['playlist_index']
 
     async def delete(self):
-        await self.ts(self.status.delete(), self.bot.loop)
+        self.ts(self.status.delete(), self.bot.loop)
         try:
             shutil.rmtree(self.downloadLocation)
         except FileNotFoundError:
