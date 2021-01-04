@@ -127,17 +127,20 @@ class YTube:
             if self.timer == ctimer:
                 return
             self.timer = ctimer
-            percent = int(int(d['_percent_str'].split('.')[0].strip())/2)
-            spaces = int(50 - percent)
-            spacesBar = ''.center(spaces, ' ')
-            bar = ''.center(percent, ':')
-            bar = f'{bar}'
-            finalBar = f'[{bar}{spacesBar}] {d["_percent_str"]}'
-            title = d["filename"].split('/')[-1]
-            message = f'Title : {title}\n{finalBar}\n\
-Downloading Speed : {d["_speed_str"]}\nETA : {d["_eta_str"]}\nTotal Size : {d["_total_bytes_str"]}'
-            self.ts(self.setStatus(f'{message}'), self.bot.loop).result()
-            return
+            try:
+                percent = int(int(d['_percent_str'].split('.')[0].strip())/2)
+                spaces = int(50 - percent)
+                spacesBar = ''.center(spaces, ' ')
+                bar = ''.center(percent, ':')
+                bar = f'{bar}'
+                finalBar = f'[{bar}{spacesBar}] {d["_percent_str"]}'
+                title = d["filename"].split('/')[-1]
+                message = f'Title : {title}\n{finalBar}\n\
+    Downloading Speed : {d["_speed_str"]}\nETA : {d["_eta_str"]}\nTotal Size : {d["_total_bytes_str"]}'
+                self.ts(self.setStatus(f'{message}'), self.bot.loop).result()
+                return
+            except KeyError:
+                return
         if d['status'] == 'finished':
             bar = ''.center(50, ':')
             bar = f'{bar}'
