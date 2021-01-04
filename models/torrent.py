@@ -48,6 +48,7 @@ class Torrenter:
         await self.sendFolderContent(targetUser, targetChannelLink, uploadedTorrentFile=fileLocation)
 
     async def sendFolderContent(self, user, targetChannelLink, uploadedTorrentFile=None, magnet=None):
+        await self.setStatus('Starting transfer from torrent to seedr ...')
         if uploadedTorrentFile == None and magnet == None:
             return
         if uploadedTorrentFile != None:
