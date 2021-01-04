@@ -59,6 +59,7 @@ class Torrenter:
         if magnet != None:
             logging.info('Downloading with magnet ..')
             addedTorrent = await self.seedr.downloadUsingMagnet(magnet)
+            logging.info(addedTorrent)
         try:
             await self.setStatus(
                 f'Downloading the torrent : {addedTorrent["title"]}')
