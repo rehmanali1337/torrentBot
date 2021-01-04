@@ -66,8 +66,12 @@ class Torrenter:
             await self.setStatus(
                 f'Could not download torrent for some reason!\nPlease Try again!')
             return
+        folder_id = None
         while True:
             downloadedTorrent = await self.seedr.getTorrentData(addedTorrent['user_torrent_id'])
+            if downloadedTorrent['folder_created'] != 0:
+                if folder_id is not None:
+                    folder_id = downloadedTorrent['folder_created']
             self.logger.info(downloadedTorrent["folder_created"])
             if downloadedTorrent['code'] == 403:
                 self.logger.info('Torrent deleted!')
@@ -79,17 +83,16 @@ class Torrenter:
                 continue
             break
         self.logger.info('Download complete')
-        createdFolderId = downloadedTorrent['folder_created']
         self.logger.info(
-            f'Created folder id : {downloadedTorrent["folder_created"]}')
+            f'Created folder id : {folder_id}')
         self.logger.info(downloadedTorrent)
         self.logger.info('Sending to target channel ..')
-        await self.sendToTarget(createdFolderId,
+        await self.sendToTarget(folder_id,
                                 targetChannelLink, self.status)
         await asyncio.sleep(0.8)
         self.logger.info('Deleting torrent from seedr ...')
         await self.setStatus('Deleting torrent from seedr.cc ...')
-        await self.seedr.deleteFolder(createdFolderId)
+        await self.seedr.deleteFolder(folder_id)
         await asyncio.sleep(0.8)
         await self.setStatus('Torrent deleted from seedr.cc!')
         await asyncio.sleep(0.8)
