@@ -79,11 +79,13 @@ class Torrenter:
         self.logger.info('Download complete')
         createdFolderId = downloadedTorrent['folder_created']
         self.logger.info(
-            f'Created folder : {downloadedTorrent["folder_created"]}')
-        self.logger.info('Sending to target channel ....')
+            f'Created folder id : {downloadedTorrent["folder_created"]}')
+        self.logger.info(downloadedTorrent)
+        self.logger.info('Sending to target channel ..')
         self.ts(self.sendToTarget(createdFolderId,
                                   targetChannelLink, self.status), self.client.loop).result()
         await asyncio.sleep(0.8)
+        self.logger.info('Deleting torrent from seedr ...')
         await self.setStatus('Deleting torrent from seedr.cc ...')
         await self.seedr.deleteFolder(createdFolderId)
         await asyncio.sleep(0.8)
@@ -91,6 +93,7 @@ class Torrenter:
         await asyncio.sleep(0.8)
         await self.setStatus('All files have been sent successfully!')
         await asyncio.sleep(15)
+        self.logger.info('Job was done!')
         self.ts(self.status.delete(), self.bot.loop).result()
 
     async def torrentToSeedrPCB(self, data, torrentID):
@@ -163,6 +166,7 @@ class Torrenter:
                 continue
             try:
                 fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
+                self.logger.info(f'File download link : {fileDownloadLink}')
                 while True:
                     try:
                         if extension in voicePlayable:
