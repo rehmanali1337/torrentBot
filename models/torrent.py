@@ -14,7 +14,7 @@ from hurry.filesize import size
 import logging
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.ERROR)
+                    level=logging.INFO)
 
 
 class Torrenter:
