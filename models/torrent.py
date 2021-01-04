@@ -277,7 +277,8 @@ class Torrenter:
             try:
                 future = self.ts(self.bot.send_message(self.userID, message),
                                  self.bot.loop)
-                self.status = assert future.result()
+                self.status = await future.result()
+                self.logger.info('Got result of future')
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
@@ -285,8 +286,10 @@ class Torrenter:
                 await asyncio.sleep(int(e.seconds) + 1)
             return
         try:
+            self.logger.info(f'Setting status : {message}')
             self.ts(self.status.edit(
                 message), self.bot.loop)
+            self.logger.info(f'Set status : {message}')
         except rpcerrorlist.MessageNotModifiedError:
             pass
         except rpcerrorlist.FloodWaitError as e:
