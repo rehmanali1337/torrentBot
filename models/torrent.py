@@ -176,7 +176,7 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
                                                           supports_streaming=True,
                                                           progress_callback=self.uploadPcb),
-                                    self.client.loop).result()
+                                    self.client.loop)
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                         elif extension in streamableFiles:
@@ -185,7 +185,7 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink,
                                                           fileDownloadLink, supports_streaming=True,
                                                           progress_callback=self.uploadPcb),
-                                    self.client.loop).result()
+                                    self.client.loop)
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                         else:
@@ -193,7 +193,7 @@ class Torrenter:
                                 f'Sending as raw file : {self.fileName}')
                             self.ts(self.client.send_file(
                                 targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
-                                self.client.loop).result()
+                                self.client.loop)
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                     except errors.rpcerrorlist.FloodWaitError as e:
