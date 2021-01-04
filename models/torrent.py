@@ -185,7 +185,7 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink,
                                                           fileDownloadLink, supports_streaming=True,
                                                           progress_callback=self.uploadPcb),
-                                    self.client.loop)
+                                    self.bot.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                         else:
