@@ -173,11 +173,11 @@ class Torrenter:
                         if extension in voicePlayable:
                             self.logger.info(
                                 f'Sending file {self.fileName} as voicePlayable ..')
-                            self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
-                                                          supports_streaming=True,
-                                                          progress_callback=self.uploadPcb),
-                                    self.bot.loop).result()
-                            self.logger.info(f'Sent : {self.fileName}')
+                            sent = self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
+                                                                 supports_streaming=True,
+                                                                 progress_callback=self.uploadPcb),
+                                           self.client.loop).result()
+                            self.logger.info(f'Sent : {sent}')
                             break
                         elif extension in streamableFiles:
                             self.logger.info(
@@ -185,7 +185,7 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink,
                                                           fileDownloadLink, supports_streaming=True,
                                                           progress_callback=self.uploadPcb),
-                                    self.bot.loop).result()
+                                    self.client.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                         else:
@@ -193,7 +193,7 @@ class Torrenter:
                                 f'Sending as raw file : {self.fileName}')
                             self.ts(self.client.send_file(
                                 targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
-                                self.bot.loop)
+                                self.client.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                     except errors.rpcerrorlist.FloodWaitError as e:
