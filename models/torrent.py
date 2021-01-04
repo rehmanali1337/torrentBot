@@ -275,10 +275,9 @@ class Torrenter:
     async def setStatus(self, message):
         if not hasattr(self, 'status'):
             try:
-                future = self.ts(self.bot.send_message(self.userID, message),
-                                 self.bot.loop)
-                self.status = await future.result()
-                self.logger.info('Got result of future')
+                self.status = self.ts(self.bot.send_message(self.userID, message),
+                                      self.bot.loop).result()
+                self.logger.info('Status created!')
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
