@@ -17,8 +17,7 @@ import logging
 class Torrenter:
     def __init__(self, client, bot,
                  magnet=None, userID=None,
-                 fileLocation=None, targetChannelLink=None
-                 ):
+                 fileLocation=None, targetChannelLink=None):
         self.client = client
         self.bot = bot
         self.targetChannelLink = targetChannelLink
@@ -83,8 +82,8 @@ class Torrenter:
             f'Created folder id : {downloadedTorrent["folder_created"]}')
         self.logger.info(downloadedTorrent)
         self.logger.info('Sending to target channel ..')
-        self.ts(self.sendToTarget(createdFolderId,
-                                  targetChannelLink, self.status), self.client.loop).result()
+        await self.sendToTarget(createdFolderId,
+                                targetChannelLink, self.status)
         await asyncio.sleep(0.8)
         self.logger.info('Deleting torrent from seedr ...')
         await self.setStatus('Deleting torrent from seedr.cc ...')

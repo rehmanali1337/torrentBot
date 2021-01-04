@@ -3,9 +3,6 @@ import os
 import asyncio
 from models.torrent import Torrenter
 
-logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.ERROR)
-
 
 class TorrentAutomator:
     def __init__(self, threadName, bot, client, queue):

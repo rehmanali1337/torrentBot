@@ -171,9 +171,3 @@ class Seedr:
             except requests.exceptions.ConnectionError:
                 await asyncio.sleep(randrange(2, 4))
                 continue
-
-
-if __name__ == "__main__":
-    seedr = Seedr('theyrealive@icloud.com', '4(r*/D2GB79Gf3Mg@%Qs')
-    loop = asyncio.get_event_loop()
-    loop.run_until_complete(seedr.deleteFolder(150500313))
