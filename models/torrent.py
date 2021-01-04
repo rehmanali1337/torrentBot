@@ -290,10 +290,21 @@ class Torrenter:
             await asyncio.sleep(int(e.seconds) + 1)
 
     async def uploadPcb(self, uploaded, total):
+        if not hasattr(self, 'uploadComplete'):
+            self.uploadComplete = False
+        if self.uploadComplete:
+            return
         if uploaded == total:
             await self.setStatus('Upload Complete!')
-            await asyncio.sleep(1)
+            self.uploadComplete = True
             return
+        if not hasattr(self, 'timer'):
+            self.timer = dt.now().today().ctime()
+            return
+        ctimer = dt.now().today().ctime()
+        if self.timer == ctimer:
+            return
+        self.timer = ctimer
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
             self.prevPercent = 0
