@@ -164,112 +164,112 @@ class Torrenter:
             extension = f.get('name').split('.')[-1]
             if extension in cover_extensions:
                 continue
-            try:
-                fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
-                self.logger.info(f'File download link : {fileDownloadLink}')
-                while True:
-                    try:
-                        if extension in voicePlayable:
-                            self.logger.info(
-                                f'Sending file {self.fileName} as voicePlayable ..')
-                            sent = self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
-                                                                 supports_streaming=True,
-                                                                 progress_callback=self.uploadPcb),
-                                           self.client.loop).result()
-                            self.logger.info(f'Sent : {sent}')
-                            break
-                        elif extension in streamableFiles:
-                            self.logger.info(
-                                f'Sending file {self.fileName} as voicePlayable ..')
-                            self.ts(self.client.send_file(targetChannelLink,
-                                                          fileDownloadLink, supports_streaming=True,
-                                                          progress_callback=self.uploadPcb),
-                                    self.client.loop).result()
-                            self.logger.info(f'Sent : {self.fileName}')
-                            break
-                        else:
-                            self.logger.info(
-                                f'Sending as raw file : {self.fileName}')
-                            self.ts(self.client.send_file(
-                                targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
-                                self.client.loop).result()
-                            self.logger.info(f'Sent : {self.fileName}')
-                            break
-                    except errors.rpcerrorlist.FloodWaitError as e:
-                        self.logger.info(
-                            f'Flood wait error!\nWaiting for {e.seconds} seconds before retry!')
-                        await asyncio.sleep(int(e.seconds) + 5)
-                        continue
+            # try:
+            #     fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
+            #     self.logger.info(f'File download link : {fileDownloadLink}')
+            #     while True:
+            #         try:
+            #             if extension in voicePlayable:
+            #                 self.logger.info(
+            #                     f'Sending file {self.fileName} as voicePlayable ..')
+            #                 sent = self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
+            #                                                      supports_streaming=True,
+            #                                                      progress_callback=self.uploadPcb),
+            #                                self.client.loop).result()
+            #                 self.logger.info(f'Sent : {sent}')
+            #                 break
+            #             elif extension in streamableFiles:
+            #                 self.logger.info(
+            #                     f'Sending file {self.fileName} as voicePlayable ..')
+            #                 self.ts(self.client.send_file(targetChannelLink,
+            #                                               fileDownloadLink, supports_streaming=True,
+            #                                               progress_callback=self.uploadPcb),
+            #                         self.client.loop).result()
+            #                 self.logger.info(f'Sent : {self.fileName}')
+            #                 break
+            #             else:
+            #                 self.logger.info(
+            #                     f'Sending as raw file : {self.fileName}')
+            #                 self.ts(self.client.send_file(
+            #                     targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
+            #                     self.client.loop).result()
+            #                 self.logger.info(f'Sent : {self.fileName}')
+            #                 break
+            #         except errors.rpcerrorlist.FloodWaitError as e:
+            #             self.logger.info(
+            #                 f'Flood wait error!\nWaiting for {e.seconds} seconds before retry!')
+            #             await asyncio.sleep(int(e.seconds) + 5)
+            #             continue
 
-            except errors.rpcerrorlist.WebpageCurlFailedError:
-                self.logger.info(f'Telegram failed to fetch {self.fileName}')
-                self.logger.info('Using local download ...')
-                downloadedFile = await self.seedr.downloadFile(f.get('id'),
-                                                               f'{self.downloadLocation}/{f.get("name")}')
-                self.logger.info('File download complete!')
-                self.logger.info(f'Downloadd file location : {downloadedFile}')
-                if not self.validSize(downloadedFile):
-                    self.logger.info('File size is not valid ...')
-                    continue
-                toSend = open(downloadedFile, 'rb')
-                try:
-                    self.logger.info('Creating fast file ...')
-                    fastFile = self.ts(upload_file(self.client, toSend, fileName=f.get("name"),
-                                                   progress_callback=self.uploadPcb),
-                                       self.client.loop).result()
-                    self.logger.info('Fast file created!')
-                except ValueError:
-                    await asyncio.sleep(0.8)
-                    await self.setStatus(
-                        f'The file {f.get("name")} is too large to upload!')
-                    self.logger.info(
-                        f'File is too larget to upload:  {self.fileName}')
-                    continue
-                while True:
-                    try:
-                        if extension in voicePlayable:
-                            self.logger.info(
-                                f'Sending as voiceplayable : {downloadedFile}')
-                            metadata = self.getMetadata(downloadedFile)
-                            attributes = [
-                                DocumentAttributeAudio(
-                                    int(metadata.streaminfo.duration), performer=metadata.tags.artist[0], voice=False, title=metadata.tags.title[0],)
-                            ]
-                            self.ts(self.client.send_file(targetChannelLink, fastFile,
-                                                          attributes=attributes, supports_streaming=True),
-                                    self.client.loop)
-                            self.logger.info(
-                                f'File sent complete : {downloadedFile}')
-                            break
-                        elif extension in streamableFiles:
-                            self.logger.info(
-                                f'Sending as streamable file : {downloadedFile}')
-                            duration, width, height = self.getVideoMetadata(
-                                downloadedFile)
-                            attributes = [DocumentAttributeVideo(
-                                duration, width, height, supports_streaming=True)]
-                            self.ts(self.client.send_file(targetChannelLink, fastFile,
-                                                          supports_streaming=True, attributes=attributes),
-                                    self.client.loop)
-                            self.logger.info(
-                                f'File send complete : {downloadedFile}')
-                            break
-                        else:
-                            self.logger.info(
-                                f'Sending as raw file : {downloadedFile}')
-                            self.ts(self.client.send_file(targetChannelLink, fastFile),
-                                    self.client.loop)
-                            self.logger.info(
-                                f'File send complete : {downloadedFile}')
-                            break
-                    except errors.rpcerrorlist.FloodWaitError as e:
-                        self.logger.info(
-                            f'Flood wait error! \nWaiting for {e.seconds} seconds before retry!')
-                        await asyncio.sleep(int(e.seconds) + 5)
-                        continue
+            # except errors.rpcerrorlist.WebpageCurlFailedError:
+            self.logger.info(f'Telegram failed to fetch {self.fileName}')
+            self.logger.info('Using local download ...')
+            downloadedFile = await self.seedr.downloadFile(f.get('id'),
+                                                           f'{self.downloadLocation}/{f.get("name")}')
+            self.logger.info('File download complete!')
+            self.logger.info(f'Downloadd file location : {downloadedFile}')
+            if not self.validSize(downloadedFile):
+                self.logger.info('File size is not valid ...')
+                continue
+            toSend = open(downloadedFile, 'rb')
+            try:
+                self.logger.info('Creating fast file ...')
+                fastFile = self.ts(upload_file(self.client, toSend, fileName=f.get("name"),
+                                               progress_callback=self.uploadPcb),
+                                   self.client.loop).result()
+                self.logger.info('Fast file created!')
+            except ValueError:
+                await asyncio.sleep(0.8)
+                await self.setStatus(
+                    f'The file {f.get("name")} is too large to upload!')
                 self.logger.info(
-                    f'Deleting downloaded file : {downloadedFile}')
-                os.remove(downloadedFile)
+                    f'File is too larget to upload:  {self.fileName}')
+                continue
+            while True:
+                try:
+                    if extension in voicePlayable:
+                        self.logger.info(
+                            f'Sending as voiceplayable : {downloadedFile}')
+                        metadata = self.getMetadata(downloadedFile)
+                        attributes = [
+                            DocumentAttributeAudio(
+                                int(metadata.streaminfo.duration), performer=metadata.tags.artist[0], voice=False, title=metadata.tags.title[0],)
+                        ]
+                        self.ts(self.client.send_file(targetChannelLink, fastFile,
+                                                      attributes=attributes, supports_streaming=True),
+                                self.client.loop)
+                        self.logger.info(
+                            f'File sent complete : {downloadedFile}')
+                        break
+                    elif extension in streamableFiles:
+                        self.logger.info(
+                            f'Sending as streamable file : {downloadedFile}')
+                        duration, width, height = self.getVideoMetadata(
+                            downloadedFile)
+                        attributes = [DocumentAttributeVideo(
+                            duration, width, height, supports_streaming=True)]
+                        self.ts(self.client.send_file(targetChannelLink, fastFile,
+                                                      supports_streaming=True, attributes=attributes),
+                                self.client.loop)
+                        self.logger.info(
+                            f'File send complete : {downloadedFile}')
+                        break
+                    else:
+                        self.logger.info(
+                            f'Sending as raw file : {downloadedFile}')
+                        self.ts(self.client.send_file(targetChannelLink, fastFile),
+                                self.client.loop)
+                        self.logger.info(
+                            f'File send complete : {downloadedFile}')
+                        break
+                except errors.rpcerrorlist.FloodWaitError as e:
+                    self.logger.info(
+                        f'Flood wait error! \nWaiting for {e.seconds} seconds before retry!')
+                    await asyncio.sleep(int(e.seconds) + 5)
+                    continue
+            self.logger.info(
+                f'Deleting downloaded file : {downloadedFile}')
+            os.remove(downloadedFile)
 
     async def setStatus(self, message):
         if not hasattr(self, 'status'):
