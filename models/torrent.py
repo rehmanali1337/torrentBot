@@ -176,7 +176,7 @@ class Torrenter:
                             self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
                                                           supports_streaming=True,
                                                           progress_callback=self.uploadPcb),
-                                    self.client.loop)
+                                    self.bot.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                         elif extension in streamableFiles:
@@ -193,7 +193,7 @@ class Torrenter:
                                 f'Sending as raw file : {self.fileName}')
                             self.ts(self.client.send_file(
                                 targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
-                                self.client.loop)
+                                self.bot.loop)
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                     except errors.rpcerrorlist.FloodWaitError as e:
@@ -277,7 +277,6 @@ class Torrenter:
             try:
                 self.status = self.ts(self.bot.send_message(self.userID, message),
                                       self.bot.loop).result()
-                self.logger.info('Status created!')
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
@@ -285,10 +284,8 @@ class Torrenter:
                 await asyncio.sleep(int(e.seconds) + 1)
             return
         try:
-            self.logger.info(f'Setting status : {message}')
             self.ts(self.status.edit(
                 message), self.bot.loop)
-            self.logger.info(f'Set status : {message}')
         except rpcerrorlist.MessageNotModifiedError:
             pass
         except rpcerrorlist.FloodWaitError as e:
