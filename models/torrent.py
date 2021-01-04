@@ -277,7 +277,7 @@ class Torrenter:
             try:
                 future = self.ts(self.bot.send_message(self.userID, message),
                                  self.bot.loop)
-                self.status = await future.result()
+                self.status = assert future.result()
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
