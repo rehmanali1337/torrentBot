@@ -173,7 +173,8 @@ class Torrenter:
                             self.logger.info(
                                 f'Sending file {self.fileName} as voicePlayable ..')
                             self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
-                                                          supports_streaming=True),
+                                                          supports_streaming=True,
+                                                          progress_callback=self.uploadPcb),
                                     self.client.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
@@ -181,7 +182,8 @@ class Torrenter:
                             self.logger.info(
                                 f'Sending file {self.fileName} as voicePlayable ..')
                             self.ts(self.client.send_file(targetChannelLink,
-                                                          fileDownloadLink, supports_streaming=True),
+                                                          fileDownloadLink, supports_streaming=True,
+                                                          progress_callback=self.uploadPcb),
                                     self.client.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
@@ -189,7 +191,8 @@ class Torrenter:
                             self.logger.info(
                                 f'Sending as raw file : {self.fileName}')
                             self.ts(self.client.send_file(
-                                targetChannelLink, fileDownloadLink), self.client.loop).result()
+                                targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
+                                self.client.loop).result()
                             self.logger.info(f'Sent : {self.fileName}')
                             break
                     except errors.rpcerrorlist.FloodWaitError as e:
