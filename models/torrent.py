@@ -82,6 +82,9 @@ class Torrenter:
                 await asyncio.sleep(1)
                 continue
             if folder_id is None:
+                self.logger.info(
+                    'Download complete! Waiting for folder id ....')
+                await asyncio.sleep(1)
                 continue
             break
         self.logger.info('Download complete')
