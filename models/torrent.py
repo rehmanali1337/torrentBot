@@ -235,7 +235,7 @@ class Torrenter:
                             ]
                             self.ts(self.client.send_file(targetChannelLink, fastFile,
                                                           attributes=attributes, supports_streaming=True),
-                                    self.client.loop)
+                                    self.client.loop).result()
                             self.logger.info(
                                 f'File sent complete : {downloadedFile}')
                             break
@@ -248,7 +248,7 @@ class Torrenter:
                                 duration, width, height, supports_streaming=True)]
                             self.ts(self.client.send_file(targetChannelLink, fastFile,
                                                           supports_streaming=True, attributes=attributes),
-                                    self.client.loop)
+                                    self.client.loop).result()
                             self.logger.info(
                                 f'File send complete : {downloadedFile}')
                             break
@@ -256,7 +256,7 @@ class Torrenter:
                             self.logger.info(
                                 f'Sending as raw file : {downloadedFile}')
                             self.ts(self.client.send_file(targetChannelLink, fastFile),
-                                    self.client.loop)
+                                    self.client.loop).result()
                             self.logger.info(
                                 f'File send complete : {downloadedFile}')
                             break
@@ -290,7 +290,6 @@ class Torrenter:
             await asyncio.sleep(int(e.seconds) + 1)
 
     async def uploadPcb(self, uploaded, total):
-        self.logger.info('PCB Called!')
         if uploaded == total:
             await self.setStatus('Upload Complete!')
             await asyncio.sleep(1)
@@ -308,9 +307,7 @@ class Torrenter:
         finalBar = f'[{bar}{spacesBar}]   {percent}%'
         message = f'Filename : {self.fileName}\n{finalBar}\nTotal Size : {size(total)}\n\
 Uploaded : {size(uploaded)}'
-        self.logger.info('Setting status ..')
         await self.setStatus(message)
-        self.logger.info('Status set!')
 
     @staticmethod
     def getVideoMetadata(videoLocation):
