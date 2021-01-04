@@ -10,6 +10,7 @@ import ffmpeg
 import threading
 from glob import glob
 import shutil
+import logging
 import requests
 import re
 from datetime import datetime as dt
@@ -136,7 +137,7 @@ class YTube:
                 finalBar = f'[{bar}{spacesBar}] {d["_percent_str"]}'
                 title = d["filename"].split('/')[-1]
                 message = f'Title : {title}\n{finalBar}\n\
-    Downloading Speed : {d["_speed_str"]}\nETA : {d["_eta_str"]}\nTotal Size : {d["_total_bytes_str"]}'
+Downloading Speed : {d["_speed_str"]}\nETA : {d["_eta_str"]}\nTotal Size : {d["_total_bytes_str"]}'
                 self.ts(self.setStatus(f'{message}'), self.bot.loop).result()
                 return
             except KeyError:
@@ -187,6 +188,10 @@ Total Size : {d["_total_bytes_str"]}'
         self.fileName = self.fileLocation.split('/')[-1]
         thumbnailURL = info['thumbnails'][-1]['url']
         self.thumbnailLocation = self.download_file(thumbnailURL)
+        if self.thumbnailLocation is None:
+            logging.info('Could not download thumbnail!\nTryin another link')
+            thumbnailURL = info['thumbnails'][-2]['url']
+            self.thumbnailLocation = self.download_file(thumbnailURL)
         sender = YoutubeAudioSender(self.bot, self.client, self.fileLocation,
                                     self.fileName, self.channelLink,
                                     self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
@@ -197,12 +202,15 @@ Total Size : {d["_total_bytes_str"]}'
 
     def download_file(self, url):
         filename = f'{self.thumbnailDir}/thumb.jpg'
-        with requests.get(url, stream=True) as r:
-            r.raise_for_status()
-            with open(filename, 'wb') as f:
-                for chunk in r.iter_content(chunk_size=8192):
-                    f.write(chunk)
-            return filename
+        try:
+            with requests.get(url, stream=True) as r:
+                r.raise_for_status()
+                with open(filename, 'wb') as f:
+                    for chunk in r.iter_content(chunk_size=8192):
+                        f.write(chunk)
+        except requests.exceptions.HTTPError:
+            return None
+        return filename
 
     async def sendPlayList(self):
         pass
@@ -228,6 +236,7 @@ Total Size : {d["_total_bytes_str"]}'
                     result['entries'][i]['playlist_index']
 
     async def delete(self):
+        await self.ts(self.status.delete(), self.bot.loop)
         try:
             shutil.rmtree(self.downloadLocation)
         except FileNotFoundError:
