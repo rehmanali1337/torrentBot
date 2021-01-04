@@ -81,6 +81,8 @@ class Torrenter:
             if downloadedTorrent.get('progress') != 101:
                 await asyncio.sleep(1)
                 continue
+            if folder_id is None:
+                continue
             break
         self.logger.info('Download complete')
         self.logger.info(
