@@ -16,7 +16,7 @@ from automators.ytAutomator import YTAutomator
 
 
 logging.basicConfig(format='[%(levelname) 5s/%(asctime)s] %(name)s: %(message)s',
-                    level=logging.ERROR)
+                    level=logging.INFO)
 
 setup()
 f = open('config.json', 'r')
