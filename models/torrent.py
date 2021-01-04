@@ -156,7 +156,6 @@ class Torrenter:
                 await self.sendToTarget(folder['id'], targetChannelLink, status)
         files = sorted(folderContent['files'], key=itemgetter('name'))
         for f in files:
-            self.logger.info(f'Sending file : {f}')
             self.fileName = f.get("name")
             voicePlayable = ['flac', 'mp3', 'MP3']
             streamableFiles = ['mp4', 'MP4', 'Mp4', 'mP4']
