@@ -274,9 +274,9 @@ class Torrenter:
     async def setStatus(self, message):
         if not hasattr(self, 'status'):
             try:
-                self.status = self.ts(self.bot.send_message(self.userID, message),
-                                      self.bot.loop).result()
-                await asyncio.sleep(1)
+                future = self.ts(self.bot.send_message(self.userID, message),
+                                 self.bot.loop)
+                self.status = await future.result()
             except rpcerrorlist.MessageNotModifiedError:
                 pass
             except rpcerrorlist.FloodWaitError as e:
@@ -286,7 +286,6 @@ class Torrenter:
         try:
             self.ts(self.status.edit(
                 message), self.bot.loop)
-            await asyncio.sleep(1)
         except rpcerrorlist.MessageNotModifiedError:
             pass
         except rpcerrorlist.FloodWaitError as e:
@@ -294,9 +293,10 @@ class Torrenter:
             await asyncio.sleep(int(e.seconds) + 1)
 
     async def uploadPcb(self, uploaded, total):
+        self.logger.info('PCB Called!')
         if uploaded == total:
-            await asyncio.sleep(1)
             await self.setStatus('Upload Complete!')
+            await asyncio.sleep(1)
             return
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
@@ -311,7 +311,9 @@ class Torrenter:
         finalBar = f'[{bar}{spacesBar}]   {percent}%'
         message = f'Filename : {self.fileName}\n{finalBar}\nTotal Size : {size(total)}\n\
 Uploaded : {size(uploaded)}'
+        self.logger.info('Setting status ..')
         await self.setStatus(message)
+        self.logger.info('Status set!')
 
     @staticmethod
     def getVideoMetadata(videoLocation):
