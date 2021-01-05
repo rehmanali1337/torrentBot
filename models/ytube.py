@@ -180,6 +180,10 @@ Total Size : {d["_total_bytes_str"]}'
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url=self.url, download=True)
+        upload_year = info['upload_date'][:4]
+        upload_month = info['upload_date'][4:6]
+        upload_day = info['upload_date'][6:8]
+        upload_date = f'{upload_year} - {upload_month} - {upload_day}'
         self.fileLocation = glob(
             f'{self.downloadLocation}/*')[0]
         if self.fileLocation.split('/')[-1] == 'thumbnail':
@@ -194,7 +198,8 @@ Total Size : {d["_total_bytes_str"]}'
             self.thumbnailLocation = self.download_file(thumbnailURL)
         sender = YoutubeAudioSender(self.bot, self.client, self.fileLocation,
                                     self.fileName, self.channelLink,
-                                    self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
+                                    self.status, thumbnailLocation=self.thumbnailLocation,
+                                    title=self.title, upload_date=upload_date)
 
         await sender.send()
         await self.setStatus('Job completed!')

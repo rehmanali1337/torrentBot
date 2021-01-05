@@ -344,13 +344,14 @@ class YoutubeAudioSender:
     def __init__(self, bot, client,
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
-                 title: str = None):
+                 title: str = None, upload_date: str = None):
         self.bot = bot
         self.client = client
         self.fileLocation = fileLocation
         self.thumbnailLocation = thumbnailLocation
         self.fileName = fileName
         self.title = title
+        self.upload_date = upload_date
         self.targetChannelLink = channelLink
         self.status = status
         self.ts = asyncio.run_coroutine_threadsafe
@@ -399,7 +400,7 @@ Uploaded : {size(uploaded)}'
         if self.thumbnailLocation:
             await self.setStatus('Sending thumbnail ...')
             title = self.title.replace('.mp3', '')
-            caption = f'<b>{title}</b>'
+            caption = f'<b>{title}\n{self.upload_date}</b>'
             self.ts(self.client.send_file(self.targetChannelLink,
                                           self.thumbnailLocation, caption=caption),
                     self.client.loop)
