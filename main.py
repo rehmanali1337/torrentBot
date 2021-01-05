@@ -55,8 +55,6 @@ async def startAdminConv(event):
 
 
 async def startUserConv(event):
-    en = await client.get_entity(event.peer_id)
-    print(en.stringify())
     conversation = UserConversation(
         bot, client, torrentsQueue, ytQueue, megaQueue)
     await conversation.start(event)
