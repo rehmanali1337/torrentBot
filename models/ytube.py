@@ -122,6 +122,7 @@ class YTube:
 
     def ytDownloadPcb(self, d):
         if not self.tracker.request_allowed(self.userID):
+            print('Not allowed!')
             return
         if d['status'] == 'downloading':
             try:
