@@ -99,8 +99,6 @@ class YTube:
         await self.delete()
 
     async def setStatus(self, message):
-        while not self.tracker.request_allowed(self.userID):
-            await asyncio.sleep(0.5)
         if not hasattr(self, 'status'):
             try:
                 self.status = self.ts(self.bot.send_message(self.userID,
