@@ -7,6 +7,7 @@ class Tracker:
         self.loginfo = logging.getLogger(' Request Tracker ').info
 
     def request_allowed(self, userID) -> bool:
+        userID = str(userID)
         if not hasattr(self, userID):
             ctimer = dt.now().today().ctime()
             setattr(self, userID, ctimer)
