@@ -18,11 +18,12 @@ from datetime import datetime as dt
 
 class YTube:
     def __init__(self, bot, client,
-                 url, selectedFormat, userID, channelLink):
+                 url, selectedFormat, userID, channelLink, tracker):
         self.url = url
         self.bot = bot
         self.client = client
         self.userID = userID
+        self.tracker = tracker
         self.channelLink = channelLink
         self.selectedFormat = selectedFormat
         self.rootLocation = os.getcwd()
@@ -98,9 +99,10 @@ class YTube:
         await self.delete()
 
     async def setStatus(self, message):
+        while not self.tracker.request_allowed():
+            await asyncio.sleep(0.5)
         if not hasattr(self, 'status'):
             try:
-                # await asyncio.sleep(1)
                 self.status = self.ts(self.bot.send_message(self.userID,
                                                             message),
                                       self.bot.loop).result()
@@ -112,7 +114,6 @@ class YTube:
             return
         try:
             self.ts(self.status.edit(message), self.bot.loop)
-            # await asyncio.sleep(1)
         except rpcerrorlist.MessageNotModifiedError:
             pass
         except rpcerrorlist.FloodWaitError as e:
@@ -120,14 +121,9 @@ class YTube:
             await asyncio.sleep(int(e.seconds) + 1)
 
     def ytDownloadPcb(self, d):
-        if not hasattr(self, 'timer'):
-            self.timer = dt.now().today().ctime()
+        if not self.tracker.request_allowed(self.userID):
             return
         if d['status'] == 'downloading':
-            ctimer = dt.now().today().ctime()
-            if self.timer == ctimer:
-                return
-            self.timer = ctimer
             try:
                 percent = int(int(d['_percent_str'].split('.')[0].strip())/2)
                 spaces = int(50 - percent)

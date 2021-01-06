@@ -13,7 +13,7 @@ from utils.preSetup import setup
 from utils.db import DB
 from automators.megaAutomator import MegaAutomator
 from automators.ytAutomator import YTAutomator
-
+from utils.requests_tracker import Tracker
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
@@ -71,18 +71,20 @@ bot.add_event_handler(startAdminConv, events.NewMessage(
 bot.add_event_handler(startUserConv, events.NewMessage(
     pattern='/start', func=validUser))
 
+rtracker = Tracker()
+
 for i in range(4):
     automator = TorrentAutomator(i+1, bot, client, torrentsQueue)
     threading.Thread(target=automator.start,
                      name=f'Torrent Thread {i+1}').start()
 
 for i in range(2):
-    megaAutomator = MegaAutomator(i+1, bot, client, megaQueue)
+    megaAutomator = MegaAutomator(i+1, bot, client, megaQueue, rtracker)
     threading.Thread(target=megaAutomator.start,
                      name=f'Mega Thread {i+1}').start()
 
 for i in range(2):
-    ytAutomator = YTAutomator(i+1, bot, client, ytQueue)
+    ytAutomator = YTAutomator(i+1, bot, client, ytQueue, rtracker)
     threading.Thread(target=ytAutomator.start,
                      name=f'Youtube Thread {i+1}').start()
 

@@ -4,11 +4,12 @@ from models.mega import Mega
 
 
 class MegaAutomator:
-    def __init__(self, threadName, bot, client, queue):
+    def __init__(self, threadName, bot, client, queue, tracker):
         f = open('config.json', 'r')
         self.threadName = threadName
         self.config = json.load(f)
         self.bot = bot
+        self.tracker = tracker
         self.client = client
         self.queue = queue
         self.loop = asyncio.new_event_loop()

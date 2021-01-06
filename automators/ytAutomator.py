@@ -4,12 +4,13 @@ import json
 
 
 class YTAutomator:
-    def __init__(self, threadName, bot, client, queue):
+    def __init__(self, threadName, bot, client, queue, tracker):
         self.threadName = threadName
         f = open('config.json', 'r')
         self.config = json.load(f)
         self.bot = bot
         self.client = client
+        self.tracker = tracker
         self.queue = queue
         self.loop = asyncio.new_event_loop()
 
@@ -25,13 +26,14 @@ class YTAutomator:
                 linksList = getVideosLinks(job.get("URL"))
                 for link in linksList:
                     y = YTube(self.bot, self.client, link,
-                              'tiny', self.job.get("userID"), self.job.get("channel"))
+                              'tiny', self.job.get("userID"),
+                              self.job.get("channel"), self.tracker)
                     await y.sendAudio()
                 self.queue.task_done()
                 continue
             y = YTube(self.bot, self.client, job.get(
                 "URL"), job.get("resolution"), job.get("userID"),
-                job.get("channel"))
+                job.get("channel"), self.tracker)
             if job.get('resolution') != 'tiny':
                 await y.sendVideo()
                 await y.delete()
