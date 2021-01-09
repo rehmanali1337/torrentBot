@@ -45,7 +45,7 @@ def validSize(filePath):
 class MegaSender:
     def __init__(self, bot, client,
                  fileLocation, fileName, channelLink,
-                 status, title: str = None):
+                 status, title: str = None, userID=None, tracker=None):
         self.bot = bot
         self.client = client
         self.fileLocation = fileLocation
@@ -53,6 +53,8 @@ class MegaSender:
         self.title = title
         self.targetChannelLink = channelLink
         self.status = status
+        self.userID = userID
+        self.tracker = tracker
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
@@ -71,6 +73,8 @@ class MegaSender:
     async def uploadPcb(self, uploaded, total):
         if uploaded == total:
             await self.setStatus('File Uploaded!')
+            return
+        if not self.tracker.request_allowed(self.userID):
             return
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
@@ -122,6 +126,8 @@ Uploaded : {size(uploaded)}'
                             int(duration), performer=performer,
                             voice=False, title=f'{title}.mp3')
                     ]
+                    while not self.tracker.request_allowed(self.targetChannelLink):
+                        await asyncio.sleep(1)
                     self.ts(self.client.send_file(self.targetChannelLink,
                                                   fastFile, attributes=attributes, supports_streaming=True),
                             loop=self.client.loop).result()
@@ -132,12 +138,16 @@ Uploaded : {size(uploaded)}'
                         self.fileLocation)
                     attributes = [DocumentAttributeVideo(
                         duration, width, height, supports_streaming=True)]
+                    while not self.tracker.request_allowed(self.targetChannelLink):
+                        await asyncio.sleep(1)
                     self.ts(self.client.send_file(self.targetChannelLink,
                                                   fastFile, supports_streaming=True, attributes=attributes),
                             self.client.loop).result()
                     break
                 else:
                     print('Sending as file ..')
+                    while not self.tracker.request_allowed(self.targetChannelLink):
+                        await asyncio.sleep(1)
                     self.ts(self.client.send_file(self.targetChannelLink, fastFile),
                             self.client.loop).result()
                     break
@@ -149,7 +159,7 @@ class TorrentSender:
     def __init__(self, bot, client,
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
-                 title: str = None):
+                 title: str = None, userID=None, tracker=None):
         self.bot = bot
         self.client = client
         self.fileLocation = fileLocation
@@ -158,6 +168,8 @@ class TorrentSender:
         self.title = title
         self.targetChannelLink = channelLink
         self.status = status
+        self.userID = userID
+        self.tracker = tracker
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
@@ -176,6 +188,8 @@ class TorrentSender:
     async def uploadPcb(self, uploaded, total):
         if uploaded == total:
             await self.setStatus('File Uploaded!')
+            return
+        if not self.tracker.request_allowed(self.userID):
             return
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
@@ -228,21 +242,27 @@ Uploaded : {size(uploaded)}'
                             int(duration), performer=performer,
                             voice=False, title=f'{title}.mp3')
                     ]
+                    while not self.tracker.request_allowed(self.targetChannelLink):
+                        await asyncio.sleep(1)
                     self.ts(self.client.send_file(self.targetChannelLink,
                                                   fastFile, attributes=attributes, supports_streaming=True),
                             loop=self.client.loop).result()
                     break
                 elif extension in streamableFiles:
-                    print('Sending as streamable...')
                     duration, width, height = getVideoMetadata(
                         self.fileLocation)
                     attributes = [DocumentAttributeVideo(
                         duration, width, height, supports_streaming=True)]
+                    while not self.tracker.request_allowed(self.targetChannelLink):
+                        await asyncio.sleep(1)
+                    print('Sending as streamable...')
                     self.ts(self.client.send_file(self.targetChannelLink,
                                                   fastFile, supports_streaming=True, attributes=attributes),
                             self.client.loop).result()
                     break
                 else:
+                    while not self.tracker.request_allowed(self.targetChannelLink):
+                        await asyncio.sleep(1)
                     print('Sending as file ..')
                     self.ts(self.client.send_file(self.targetChannelLink, fastFile),
                             self.client.loop).result()
@@ -255,7 +275,7 @@ class YoutuebeVideoSender:
     def __init__(self, bot, client,
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
-                 title: str = None):
+                 title: str = None, tracker=None, userID=None):
         self.bot = bot
         self.client = client
         self.fileLocation = fileLocation
@@ -264,6 +284,8 @@ class YoutuebeVideoSender:
         self.title = title
         self.targetChannelLink = channelLink
         self.status = status
+        self.tracker = tracker
+        self.userID = userID
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
@@ -284,13 +306,8 @@ class YoutuebeVideoSender:
             await self.setStatus('Upload Complete!')
             self.uploadComplete = True
             return
-        if not hasattr(self, 'timer'):
-            self.timer = dt.now().today().ctime()
+        if not self.tracker.request_allowed(self.userID):
             return
-        ctimer = dt.now().today().ctime()
-        if self.timer == ctimer:
-            return
-        self.timer = ctimer
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
             self.prevPercent = 0
@@ -333,6 +350,8 @@ Uploaded : {size(uploaded)}'
                 self.fileLocation)
             attributes = [DocumentAttributeVideo(
                 duration, width, height, supports_streaming=True)]
+            while not self.tracker.request_allowed(self.targetChannelLink):
+                await asyncio.sleep(1)
             self.ts(self.client.send_file(self.targetChannelLink,
                                           fastFile, supports_streaming=True, attributes=attributes),
                     self.client.loop).result()
@@ -344,7 +363,8 @@ class YoutubeAudioSender:
     def __init__(self, bot, client,
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
-                 title: str = None, upload_date: str = None):
+                 title: str = None, upload_date: str = None,
+                 user_id: int = None, tracker=None):
         self.bot = bot
         self.client = client
         self.fileLocation = fileLocation
@@ -354,6 +374,8 @@ class YoutubeAudioSender:
         self.upload_date = upload_date
         self.targetChannelLink = channelLink
         self.status = status
+        self.userID = user_id
+        self.tracker = tracker
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
@@ -374,13 +396,8 @@ class YoutubeAudioSender:
             await self.setStatus('Upload Complete!')
             self.uploadComplete = True
             return
-        if not hasattr(self, 'timer'):
-            self.timer = dt.now().today().ctime()
+        if not self.tracker.request_allowed(self.userID):
             return
-        ctimer = dt.now().today().ctime()
-        if self.timer == ctimer:
-            return
-        self.timer = ctimer
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
             self.prevPercent = 0
@@ -435,6 +452,8 @@ Uploaded : {size(uploaded)}'
                     int(duration), performer=performer,
                     voice=False, title=f'{title}.mp3')
             ]
+            while not self.tracker.request_allowed(self.targetChannelLink):
+                await asyncio.sleep(1)
             self.ts(self.client.send_file(self.targetChannelLink,
                                           fastFile, attributes=attributes, supports_streaming=True),
                     loop=self.client.loop).result()

@@ -8,12 +8,14 @@ from tg_exts.TGUtils import MegaSender
 
 
 class Mega:
-    def __init__(self, url, targetChannel, userID, bot, client):
+    def __init__(self, url, targetChannel, userID,
+                 bot, client, tracker):
         self.url = url
         self.bot = bot
         self.client = client
         self.status = None
         self.userID = userID
+        self.tracker = tracker
         self.channelLink = targetChannel
         self.ts = asyncio.run_coroutine_threadsafe
         self.root = os.getcwd()
@@ -72,8 +74,8 @@ class Mega:
 
     async def sendFile(self, fileLocation):
         fileName = fileLocation.split('/')[-1]
-        print(f'Sending file location : {fileLocation}')
         sender = MegaSender(self.bot, self.client,
                             fileLocation, fileName,
-                            self.channelLink, self.status, title=fileName)
+                            self.channelLink, self.status, title=fileName,
+                            tracker=self.tracker, userID=self.userID)
         await sender.send()

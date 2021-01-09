@@ -18,11 +18,12 @@ from datetime import datetime as dt
 class Torrenter:
     def __init__(self, client, bot,
                  magnet=None, userID=None,
-                 fileLocation=None, targetChannelLink=None):
+                 fileLocation=None, targetChannelLink=None, tracker=None):
         self.client = client
         self.bot = bot
         self.targetChannelLink = targetChannelLink
         self.userID = userID
+        self.tracker = tracker
         self.magnet = magnet
         self.fileLocation = fileLocation
         self.seedr = Seedr()
@@ -106,6 +107,8 @@ class Torrenter:
         self.ts(self.status.delete(), self.bot.loop).result()
 
     async def torrentToSeedrPCB(self, data, torrentID):
+        if not self.tracker.request_allowed(self.userID):
+            return
         if data.get('code') == 200:
             percent = int(data.get('progress')) - 1
             if percent < 0:
@@ -144,6 +147,8 @@ class Torrenter:
                 await self.setStatus('Sending the cover image ...')
                 fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
                 try:
+                    while not self.tracker.request_allowed(targetChannelLink):
+                        await asyncio.sleep(1)
                     self.ts(self.client.send_file(targetChannelLink,
                                                   fileDownloadLink), self.client.loop)
                 except errors.rpcerrorlist.WebpageCurlFailedError:
@@ -151,6 +156,8 @@ class Torrenter:
                                                                    f'{self.downloadLocation}/{f.get("name")}')
                     self.logger.info(f'Download file : {downloadedFile}')
                     toSend = open(downloadedFile, 'rb')
+                    while not self.tracker.request_allowed(targetChannelLink):
+                        await asyncio.sleep(1)
                     self.ts(self.client.send_file(
                         targetChannelLink, toSend), self.client.loop).result()
                     os.remove(downloadedFile)
@@ -225,6 +232,8 @@ class Torrenter:
     async def direct_sender(self, targetChannelLink, fileDownloadLink,
                             extension, voicePlayable, streamableFiles):
         if extension in voicePlayable:
+            while not self.tracker.request_allowed(targetChannelLink):
+                await asyncio.sleep(1)
             self.logger.info(
                 f'Sending file {self.fileName} as voicePlayable ..')
             self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
@@ -232,6 +241,8 @@ class Torrenter:
                                           progress_callback=self.uploadPcb),
                     self.client.loop).result()
         elif extension in streamableFiles:
+            while not self.tracker.request_allowed(targetChannelLink):
+                await asyncio.sleep(1)
             self.logger.info(
                 f'Sending file {self.fileName} as voicePlayable ..')
             self.ts(self.client.send_file(targetChannelLink,
@@ -240,6 +251,8 @@ class Torrenter:
                     self.client.loop).result()
             self.logger.info(f'Sent : {self.fileName}')
         else:
+            while not self.tracker.request_allowed(targetChannelLink):
+                await asyncio.sleep(1)
             self.logger.info(
                 f'Sending as raw file : {self.fileName}')
             self.ts(self.client.send_file(
@@ -257,6 +270,8 @@ class Torrenter:
                 DocumentAttributeAudio(
                     int(metadata.streaminfo.duration), performer=metadata.tags.artist[0], voice=False, title=metadata.tags.title[0],)
             ]
+            while not self.tracker.request_allowed(targetChannelLink):
+                await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile,
                                           attributes=attributes, supports_streaming=True),
                     self.client.loop).result()
@@ -269,6 +284,8 @@ class Torrenter:
                 downloadedFile)
             attributes = [DocumentAttributeVideo(
                 duration, width, height, supports_streaming=True)]
+            while not self.tracker.request_allowed(targetChannelLink):
+                await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile,
                                           supports_streaming=True, attributes=attributes),
                     self.client.loop).result()
@@ -277,6 +294,8 @@ class Torrenter:
         else:
             self.logger.info(
                 f'Sending as raw file : {downloadedFile}')
+            while not self.tracker.request_allowed(targetChannelLink):
+                await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile),
                     self.client.loop).result()
             self.logger.info(
@@ -311,13 +330,8 @@ class Torrenter:
             await self.setStatus('Upload Complete!')
             self.uploadComplete = True
             return
-        if not hasattr(self, 'timer'):
-            self.timer = dt.now().today().ctime()
+        if not self.tracker.request_allowed(self.userID):
             return
-        ctimer = dt.now().today().ctime()
-        if self.timer == ctimer:
-            return
-        self.timer = ctimer
         percent = int((uploaded/total) * 100)
         if not hasattr(self, 'prevPercent'):
             self.prevPercent = 0

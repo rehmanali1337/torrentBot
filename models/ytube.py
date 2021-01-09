@@ -93,7 +93,8 @@ class YTube:
         self.thumbnailLocation = self.download_file(thumbnailURL)
         sender = YoutuebeVideoSender(self.bot, self.client, self.fileLocation,
                                      self.fileName, self.channelLink,
-                                     self.status, thumbnailLocation=self.thumbnailLocation, title=self.title)
+                                     self.status, thumbnailLocation=self.thumbnailLocation,
+                                     title=self.title, tracker=self.tracker, userID=self.userID)
         await sender.send()
         await self.setStatus('Job completed!')
         await self.delete()
@@ -120,7 +121,6 @@ class YTube:
 
     def ytDownloadPcb(self, d):
         if not self.tracker.request_allowed(self.userID):
-            print('Not allowed!')
             return
         if d['status'] == 'downloading':
             try:
@@ -194,7 +194,7 @@ Total Size : {d["_total_bytes_str"]}'
         sender = YoutubeAudioSender(self.bot, self.client, self.fileLocation,
                                     self.fileName, self.channelLink,
                                     self.status, thumbnailLocation=self.thumbnailLocation,
-                                    title=self.title, upload_date=upload_date)
+                                    title=self.title, upload_date=upload_date, user_id=self.userID)
 
         await sender.send()
         await self.setStatus('Job completed!')

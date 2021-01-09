@@ -5,11 +5,12 @@ from models.torrent import Torrenter
 
 
 class TorrentAutomator:
-    def __init__(self, threadName, bot, client, queue):
+    def __init__(self, threadName, bot, client, queue, tracker):
         self.threadName = threadName
         self.bot = bot
         self.queue = queue
         self.client = client
+        self.tracker = tracker
         self.loop = asyncio.new_event_loop()
 
     def start(self):
@@ -28,7 +29,9 @@ class TorrentAutomator:
             if downloadType == 'file':
                 t = Torrenter(self.client, self.bot,
                               fileLocation=job.get("fileLocation"),
-                              userID=job.get("userID"), targetChannelLink=job.get("targetChannelLink"))
+                              userID=job.get("userID"),
+                              targetChannelLink=job.get("targetChannelLink"),
+                              tracker=self.tracker)
                 await t.handleTorrentFile()
                 try:
                     os.remove(job.get('fileLocation'))
@@ -39,7 +42,9 @@ class TorrentAutomator:
             if downloadType == 'magnet':
                 t = Torrenter(self.client, self.bot,
                               magnet=job.get("magnet"),
-                              userID=job.get("userID"), targetChannelLink=job.get("targetChannelLink"))
+                              userID=job.get("userID"),
+                              targetChannelLink=job.get("targetChannelLink"),
+                              tracker=self.tracker)
                 await t.handleMagnetLink()
                 self.queue.task_done()
                 continue

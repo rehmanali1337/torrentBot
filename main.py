@@ -74,7 +74,7 @@ bot.add_event_handler(startUserConv, events.NewMessage(
 rtracker = Tracker()
 
 for i in range(4):
-    automator = TorrentAutomator(i+1, bot, client, torrentsQueue)
+    automator = TorrentAutomator(i+1, bot, client, torrentsQueue, rtracker)
     threading.Thread(target=automator.start,
                      name=f'Torrent Thread {i+1}').start()
 
