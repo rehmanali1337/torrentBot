@@ -24,7 +24,7 @@ class UserConversation:
         async with self.bot.conversation(event.peer_id) as conv:
             self.conv = conv
             await self.conv.send_message(
-                'Welcome to the bot!\nYou are admin of the bot.')
+                'Welcome to the bot!')
             await self.home()
 
     async def getEntity(self, channelLink):
