@@ -273,7 +273,8 @@ class Torrenter:
             while not self.tracker.request_allowed(targetChannelLink):
                 await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile,
-                                          attributes=attributes, supports_streaming=True),
+                                          attributes=attributes, supports_streaming=True,
+                                          progress_callback=self.uploadPcb),
                     self.client.loop).result()
             self.logger.info(
                 f'File sent complete : {downloadedFile}')
@@ -287,7 +288,8 @@ class Torrenter:
             while not self.tracker.request_allowed(targetChannelLink):
                 await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile,
-                                          supports_streaming=True, attributes=attributes),
+                                          supports_streaming=True, attributes=attributes,
+                                          progress_callback=self.uploadPcb),
                     self.client.loop).result()
             self.logger.info(
                 f'File send complete : {downloadedFile}')
@@ -296,7 +298,8 @@ class Torrenter:
                 f'Sending as raw file : {downloadedFile}')
             while not self.tracker.request_allowed(targetChannelLink):
                 await asyncio.sleep(1)
-            self.ts(self.client.send_file(targetChannelLink, fastFile),
+            self.ts(self.client.send_file(targetChannelLink, fastFile,
+                                          progress_callback=self.uploadPcb),
                     self.client.loop).result()
             self.logger.info(
                 f'File send complete : {downloadedFile}')
