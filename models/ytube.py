@@ -194,7 +194,8 @@ Total Size : {d["_total_bytes_str"]}'
         sender = YoutubeAudioSender(self.bot, self.client, self.fileLocation,
                                     self.fileName, self.channelLink,
                                     self.status, thumbnailLocation=self.thumbnailLocation,
-                                    title=self.title, upload_date=upload_date, user_id=self.userID)
+                                    title=self.title, upload_date=upload_date,
+                                    user_id=self.userID, tracker=self.tracker)
 
         await sender.send()
         await self.setStatus('Job completed!')
