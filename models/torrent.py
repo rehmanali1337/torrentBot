@@ -225,9 +225,9 @@ class Torrenter:
                     await asyncio.sleep(int(e.seconds) + 5)
                     await self.local_sender(extension, voicePlayable, streamableFiles,
                                             downloadedFile, targetChannelLink, fastFile)
-            self.logger.info(
-                f'Deleting downloaded file : {downloadedFile}')
-            os.remove(downloadedFile)
+                self.logger.info(
+                    f'Deleting downloaded file : {downloadedFile}')
+                os.remove(downloadedFile)
 
     async def direct_sender(self, targetChannelLink, fileDownloadLink,
                             extension, voicePlayable, streamableFiles):

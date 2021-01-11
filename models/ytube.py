@@ -154,13 +154,9 @@ Total Size : {d["_total_bytes_str"]}'
         with youtube_dl.YoutubeDL({}) as ydl:
             info = ydl.extract_info(url=self.url, download=False)
             self.title = f'{info["title"]}.mp3'
-            channel = info["uploader"]
+            channel_name = info["uploader"]
             artist = info["artist"]
             self.title = self.filterTitle(self.title)
-            if artist:
-                self.title = f'{self.title}\nArtist : {artist}'
-            else:
-                self.title = f'{self.title}\nChannel : {channel}'
         await self.setStatus('Starting to downlad the audio ..')
         ydl_opts = {
             'format': 'bestaudio/best',
@@ -195,8 +191,8 @@ Total Size : {d["_total_bytes_str"]}'
                                     self.fileName, self.channelLink,
                                     self.status, thumbnailLocation=self.thumbnailLocation,
                                     title=self.title, upload_date=upload_date,
-                                    user_id=self.userID, tracker=self.tracker)
-
+                                    user_id=self.userID, tracker=self.tracker,
+                                    channel_name=channel_name, artist=artist)
         await sender.send()
         await self.setStatus('Job completed!')
         await self.delete()

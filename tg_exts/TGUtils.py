@@ -364,7 +364,8 @@ class YoutubeAudioSender:
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
                  title: str = None, upload_date: str = None,
-                 user_id: int = None, tracker=None):
+                 user_id: int = None, tracker=None, 
+                 channel_name=None, artist=None):
         self.bot = bot
         self.client = client
         self.fileLocation = fileLocation
@@ -376,6 +377,7 @@ class YoutubeAudioSender:
         self.status = status
         self.userID = user_id
         self.tracker = tracker
+        self.channel_name = channel_name
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
