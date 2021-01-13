@@ -45,7 +45,7 @@ class Mega:
                 await self.sendFile(p)
                 continue
         await self.setStatus('Job complete!')
-        shutil.rmtree(self.downloadLocation)
+        # shutil.rmtree(self.downloadLocation)
 
     async def sendFolder(self, folderLocation):
         files = glob(f'{folderLocation}/*')
