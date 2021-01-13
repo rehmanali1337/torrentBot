@@ -34,6 +34,7 @@ class Mega:
     async def send(self):
         await self.download()
         downloaded = glob(f'{self.downloadLocation}/*')
+        print(downloaded)
         for p in downloaded:
             if os.path.isdir(p):
                 print('Sending folder ..')
