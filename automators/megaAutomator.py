@@ -24,6 +24,6 @@ class MegaAutomator:
             self.targetChannelLink = job.get('channelLink')
             self.userID = job.get('userID')
             mega = Mega(job.get("megaLink"), self.targetChannelLink,
-                        self.userID, self.bot, self.client)
+                        self.userID, self.bot, self.client, self.tracker)
             await mega.send()
             self.queue.task_done()
