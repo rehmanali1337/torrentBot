@@ -23,7 +23,7 @@ class AdminConversation:
         self.logger = logging.getLogger(' Admin Conv ')
 
     async def start(self, event):
-        async with self.bot.conversation(event.peer_id, timeout=1000) as conv:
+        async with self.bot.conversation(event.peer_id, timeout=-1) as conv:
             self.conv = conv
             await self.conv.send_message(
                 'Welcome to Skootbot!\nYou are admin of the bot.')

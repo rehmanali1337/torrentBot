@@ -184,7 +184,7 @@ Total Size : {d["_total_bytes_str"]}'
         thumbnailURL = info['thumbnails'][-1]['url']
         self.thumbnailLocation = self.download_file(thumbnailURL)
         if self.thumbnailLocation is None:
-            logging.info('Could not download thumbnail!\nTryin another link')
+            logging.info('Could not download thumbnail!\nTrying another link')
             thumbnailURL = info['thumbnails'][-2]['url']
             self.thumbnailLocation = self.download_file(thumbnailURL)
         sender = YoutubeAudioSender(self.bot, self.client, self.fileLocation,

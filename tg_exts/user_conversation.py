@@ -21,7 +21,7 @@ class UserConversation:
         self.db = DB()
 
     async def start(self, event):
-        async with self.bot.conversation(event.peer_id) as conv:
+        async with self.bot.conversation(event.peer_id, timeout=-1) as conv:
             self.conv = conv
             await self.conv.send_message(
                 'Welcome to the bot!')

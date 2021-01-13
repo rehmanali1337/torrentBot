@@ -339,7 +339,6 @@ Uploaded : {size(uploaded)}'
             print('Sending as streamable...')
             try:
                 title = self.fileLocation.split('/')[-1]
-                print('Creating fastfile')
                 fastFile = self.ts(upload_file(
                     self.client, toSend, fileName=title,
                     progress_callback=self.uploadPcb), self.client.loop).result()
@@ -364,7 +363,7 @@ class YoutubeAudioSender:
                  fileLocation, fileName, channelLink,
                  status, thumbnailLocation: str = None,
                  title: str = None, upload_date: str = None,
-                 user_id: int = None, tracker=None, 
+                 user_id: int = None, tracker=None,
                  channel_name=None, artist=None):
         self.bot = bot
         self.client = client
@@ -378,6 +377,7 @@ class YoutubeAudioSender:
         self.userID = user_id
         self.tracker = tracker
         self.channel_name = channel_name
+        self.artist = artist
         self.ts = asyncio.run_coroutine_threadsafe
 
     async def setStatus(self, message):
@@ -419,7 +419,10 @@ Uploaded : {size(uploaded)}'
         if self.thumbnailLocation:
             await self.setStatus('Sending thumbnail ...')
             title = self.title.replace('.mp3', '')
-            caption = f'<b>{title}\n{self.upload_date}</b>'
+            if self.channel_name is not None:
+                caption = f'<b>{title}\n{self.channel_name}\n{self.upload_date}</b>'
+            else:
+                caption = f'<b>{title}\n{self.artist}\n{self.upload_date}</b>'
             self.ts(self.client.send_file(self.targetChannelLink,
                                           self.thumbnailLocation, caption=caption),
                     self.client.loop)
@@ -430,8 +433,6 @@ Uploaded : {size(uploaded)}'
         try:
             try:
                 title = self.title.split('\n')[0]
-                print('Sending as audio')
-                print('Creating fastfile')
                 fastFile = self.ts(upload_file(
                     self.client, toSend, fileName=title,
                     progress_callback=self.uploadPcb), self.client.loop).result()
