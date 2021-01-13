@@ -37,7 +37,7 @@ class Mega:
         print(downloaded)
         for p in downloaded:
             if os.path.isdir(p):
-                print('Sending folder ..')
+                print(f'Sending folder : {p}')
                 await self.sendFolder(p)
                 continue
             if os.path.isfile(p):
