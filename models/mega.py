@@ -49,6 +49,7 @@ class Mega:
 
     async def sendFolder(self, folderLocation):
         files = glob(f'{folderLocation}/*')
+        print(files)
         for p in files:
             if os.path.isdir(p):
                 await self.sendFolder(p)
