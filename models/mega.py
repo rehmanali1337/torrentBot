@@ -5,6 +5,7 @@ import asyncio
 from glob import glob
 import shutil
 from tg_exts.TGUtils import MegaSender
+import logging
 
 
 class Mega:
@@ -14,6 +15,7 @@ class Mega:
         self.bot = bot
         self.client = client
         self.status = None
+        self.log = logging.getLogger(__name__).info
         self.userID = userID
         self.tracker = tracker
         self.channelLink = targetChannel
@@ -51,6 +53,7 @@ class Mega:
                 await self.sendFolder(p)
                 continue
             if os.path.isfile(p):
+                self.log(f'Senfing file : {p}')
                 await self.sendFile(p)
                 continue
 
