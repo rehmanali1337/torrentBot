@@ -19,11 +19,15 @@ class MegaAutomator:
 
     async def main(self):
         while True:
-            print(f'Mega Thread {self.threadName} waiting for job ..')
-            job = self.queue.get()
-            self.targetChannelLink = job.get('channelLink')
-            self.userID = job.get('userID')
-            mega = Mega(job.get("megaLink"), self.targetChannelLink,
-                        self.userID, self.bot, self.client, self.tracker)
-            await mega.send()
-            self.queue.task_done()
+            try:
+                print(f'Mega Thread {self.threadName} waiting for job ..')
+                job = self.queue.get()
+                self.targetChannelLink = job.get('channelLink')
+                self.userID = job.get('userID')
+                mega = Mega(job.get("megaLink"), self.targetChannelLink,
+                            self.userID, self.bot, self.client, self.tracker)
+                await mega.send()
+                self.queue.task_done()
+            except Exception as e:
+                print('Exception in Mega thread!')
+                print(e)

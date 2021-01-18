@@ -18,33 +18,39 @@ class TorrentAutomator:
 
     async def main(self):
         while True:
-            print(
-                f'Torrent Thread {self.threadName} waiting for torrent ...')
-            job = self.queue.get()
-            self.job = job
-            self.status = None
-            self.userID = job.get('userID')
-            self.targetChannelLink = job.get("targetChannelLink")
-            downloadType = job.get('downloadType')
-            if downloadType == 'file':
-                t = Torrenter(self.client, self.bot,
-                              fileLocation=job.get("fileLocation"),
-                              userID=job.get("userID"),
-                              targetChannelLink=job.get("targetChannelLink"),
-                              tracker=self.tracker)
-                await t.handleTorrentFile()
-                try:
-                    os.remove(job.get('fileLocation'))
-                except FileNotFoundError:
-                    pass
-                self.queue.task_done()
-                continue
-            if downloadType == 'magnet':
-                t = Torrenter(self.client, self.bot,
-                              magnet=job.get("magnet"),
-                              userID=job.get("userID"),
-                              targetChannelLink=job.get("targetChannelLink"),
-                              tracker=self.tracker)
-                await t.handleMagnetLink()
-                self.queue.task_done()
-                continue
+            try:
+                print(
+                    f'Torrent Thread {self.threadName} waiting for torrent ...')
+                job = self.queue.get()
+                self.job = job
+                self.status = None
+                self.userID = job.get('userID')
+                self.targetChannelLink = job.get("targetChannelLink")
+                downloadType = job.get('downloadType')
+                if downloadType == 'file':
+                    t = Torrenter(self.client, self.bot,
+                                  fileLocation=job.get("fileLocation"),
+                                  userID=job.get("userID"),
+                                  targetChannelLink=job.get(
+                                      "targetChannelLink"),
+                                  tracker=self.tracker)
+                    await t.handleTorrentFile()
+                    try:
+                        os.remove(job.get('fileLocation'))
+                    except FileNotFoundError:
+                        pass
+                    self.queue.task_done()
+                    continue
+                if downloadType == 'magnet':
+                    t = Torrenter(self.client, self.bot,
+                                  magnet=job.get("magnet"),
+                                  userID=job.get("userID"),
+                                  targetChannelLink=job.get(
+                                      "targetChannelLink"),
+                                  tracker=self.tracker)
+                    await t.handleMagnetLink()
+                    self.queue.task_done()
+                    continue
+            except Exception as e:
+                print('Exception in torrent thread!')
+                print(e)
