@@ -19,34 +19,29 @@ class YTAutomator:
 
     async def main(self):
         while True:
-            try:
-                print(f'Youtube Thread {self.threadName} waiting for job ..')
-                job = self.queue.get()
-                self.job = job
-                if job.get("linkType") == 'playlist':
-                    linksList = getVideosLinks(job.get("URL"))
-                    for link in linksList:
-                        y = YTube(self.bot, self.client, link,
-                                  'tiny', self.job.get("userID"),
-                                  self.job.get("channel"), self.tracker)
-                        await y.sendAudio()
-                    self.queue.task_done()
-                    continue
-                y = YTube(self.bot, self.client, job.get(
-                    "URL"), job.get("resolution"), job.get("userID"),
-                    job.get("channel"), self.tracker)
-                if job.get('resolution') != 'tiny':
-                    await y.sendVideo()
-                    await y.delete()
-                    self.queue.task_done()
-                    continue
-                await y.sendAudio()
-                try:
-                    await y.delete()
-                except FileNotFoundError:
-                    pass
+            print(f'Youtube Thread {self.threadName} waiting for job ..')
+            job = self.queue.get()
+            self.job = job
+            if job.get("linkType") == 'playlist':
+                linksList = getVideosLinks(job.get("URL"))
+                for link in linksList:
+                    y = YTube(self.bot, self.client, link,
+                              'tiny', self.job.get("userID"),
+                              self.job.get("channel"), self.tracker)
+                    await y.sendAudio()
                 self.queue.task_done()
-
-            except Exception as e:
-                print('Exception in YT thread!')
-                print(e)
+                continue
+            y = YTube(self.bot, self.client, job.get(
+                "URL"), job.get("resolution"), job.get("userID"),
+                job.get("channel"), self.tracker)
+            if job.get('resolution') != 'tiny':
+                await y.sendVideo()
+                await y.delete()
+                self.queue.task_done()
+                continue
+            await y.sendAudio()
+            try:
+                await y.delete()
+            except FileNotFoundError:
+                pass
+            self.queue.task_done()

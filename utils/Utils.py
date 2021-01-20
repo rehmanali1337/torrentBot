@@ -64,7 +64,10 @@ class Utils:
                     continue
                 filtered.append(orig_format)
                 continue
-            f = int(orig_format.replace('p', ''))
+            try:
+                f = int(orig_format.replace('p', ''))
+            except ValueError:
+                pass
             if f >= 720:
                 if orig_format in filtered:
                     continue
