@@ -73,7 +73,7 @@ bot.add_event_handler(startUserConv, events.NewMessage(
 
 rtracker = Tracker()
 
-for i in range(4):
+for i in range(2):
     automator = TorrentAutomator(i+1, bot, client, torrentsQueue, rtracker)
     threading.Thread(target=automator.start,
                      name=f'Torrent Thread {i+1}').start()
@@ -83,7 +83,7 @@ for i in range(2):
     threading.Thread(target=megaAutomator.start,
                      name=f'Mega Thread {i+1}').start()
 
-for i in range(2):
+for i in range(4):
     ytAutomator = YTAutomator(i+1, bot, client, ytQueue, rtracker)
     threading.Thread(target=ytAutomator.start,
                      name=f'Youtube Thread {i+1}').start()

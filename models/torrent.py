@@ -229,7 +229,9 @@ class Torrenter:
 
     async def local_sender(self, extension, voicePlayable, streamableFiles,
                            downloadedFile, targetChannelLink, fastFile):
+        self.logger.info(f'Using local sender ...')
         if extension in voicePlayable:
+            self.logger.info('Sending as voice playable ...')
             metadata = self.getMetadata(downloadedFile)
             attributes = [
                 DocumentAttributeAudio(
@@ -242,6 +244,7 @@ class Torrenter:
                                           progress_callback=self.uploadPcb),
                     self.client.loop).result()
         elif extension in streamableFiles:
+            self.logger.info('Sending as streamable ...')
             duration, width, height = self.getVideoMetadata(
                 downloadedFile)
             attributes = [DocumentAttributeVideo(
@@ -253,6 +256,7 @@ class Torrenter:
                                           progress_callback=self.uploadPcb),
                     self.client.loop).result()
         else:
+            self.logger.info('Sending as raw ...')
             while not self.tracker.request_allowed(targetChannelLink):
                 await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile,
