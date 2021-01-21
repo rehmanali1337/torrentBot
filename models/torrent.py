@@ -67,9 +67,14 @@ class Torrenter:
         folder_id = None
         while True:
             downloadedTorrent = await self.seedr.getTorrentData(addedTorrent['user_torrent_id'])
-            if downloadedTorrent['folder_created'] != 0:
-                if folder_id is None:
-                    folder_id = downloadedTorrent['folder_created']
+            try:
+                if downloadedTorrent['folder_created'] != 0:
+                    if folder_id is None:
+                        folder_id = downloadedTorrent['folder_created']
+            except KeyError:
+                await self.setStatus(
+                    f'Could not download torrent for some reason!\nPlease Try again!')
+                return
             if downloadedTorrent['code'] == 403:
                 await self.setStatus('Deleted!')
                 return
