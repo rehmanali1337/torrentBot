@@ -67,7 +67,7 @@ class Utils:
             try:
                 f = int(orig_format.replace('p', ''))
             except ValueError:
-                pass
+                continue
             if f >= 720:
                 if orig_format in filtered:
                     continue
