@@ -72,6 +72,8 @@ class Seedr:
             except requests.exceptions.ConnectionError:
                 await asyncio.sleep(randrange(2, 4))
                 continue
+            except json.decoder.JSONDecodeError:
+                continue
 
     async def downloadUsingMagnet(self, magnetLink):
         URL = f'{self.baseURL}/torrent/magnet'

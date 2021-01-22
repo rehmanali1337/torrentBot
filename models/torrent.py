@@ -72,9 +72,8 @@ class Torrenter:
                     if folder_id is None:
                         folder_id = downloadedTorrent['folder_created']
             except KeyError:
-                await self.setStatus(
-                    f'Could not download torrent for some reason!\nPlease Try again!')
-                return
+                await asyncio.sleep(3)
+                continue
             if downloadedTorrent['code'] == 403:
                 await self.setStatus('Deleted!')
                 return
@@ -238,10 +237,17 @@ class Torrenter:
         if extension in voicePlayable:
             self.logger.info('Sending as voice playable ...')
             metadata = self.getMetadata(downloadedFile)
-            attributes = [
-                DocumentAttributeAudio(
-                    int(metadata.streaminfo.duration), performer=metadata.tags.artist[0], voice=False, title=metadata.tags.title[0],)
-            ]
+            try:
+                attributes = [
+                    DocumentAttributeAudio(
+                        int(metadata.streaminfo.duration), performer=metadata.tags.artist[0], voice=False, title=metadata.tags.title[0],)
+                ]
+            except AttributeError:
+                attributes = [
+                    DocumentAttributeAudio(
+                        int(metadata.streaminfo.duration), performer='Unknown', voice=False, title='Unknown',)
+                ]
+
             while not self.tracker.request_allowed(targetChannelLink):
                 await asyncio.sleep(1)
             self.ts(self.client.send_file(targetChannelLink, fastFile,
