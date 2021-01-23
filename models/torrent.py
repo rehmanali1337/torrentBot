@@ -72,8 +72,9 @@ class Torrenter:
                     if folder_id is None:
                         folder_id = downloadedTorrent['folder_created']
             except KeyError:
-                await asyncio.sleep(3)
-                continue
+                await self.setStatus(
+                    f'Could not download torrent for some reason!\nPlease Try again!')
+                return
             if downloadedTorrent['code'] == 403:
                 await self.setStatus('Deleted!')
                 return
