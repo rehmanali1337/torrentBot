@@ -179,7 +179,7 @@ class Torrenter:
                     await self.direct_sender(targetChannelLink, fileDownloadLink,
                                              extension, voicePlayable, streamableFiles)
 
-            except errors.rpcerrorlist.WebpageCurlFailedError:
+            except (errors.rpcerrorlist.WebpageCurlFailedError, errors.rpcerrorlist.ExternalUrlInvalidError):
                 downloadedFile = await self.seedr.downloadFile(f.get('id'),
                                                                f'{self.downloadLocation}/{f.get("name")}')
                 if not self.validSize(downloadedFile):
