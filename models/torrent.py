@@ -246,7 +246,7 @@ class Torrenter:
             except AttributeError:
                 attributes = [
                     DocumentAttributeAudio(
-                        int(metadata.streaminfo.duration), performer='Unknown', voice=False, title='Unknown',)
+                        int(0), performer='Unknown', voice=False, title='Unknown',)
                 ]
 
             while not self.tracker.request_allowed(targetChannelLink):
