@@ -247,6 +247,8 @@ def getAllFormats(url):
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url=url, download=False)
+        if info is None:
+            return getAllFormats(url)
         typeOfLink = info.get('_type')
         if typeOfLink == 'playlist':
             return 'playlist'

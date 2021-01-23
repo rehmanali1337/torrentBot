@@ -171,13 +171,13 @@ class Torrenter:
                 fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
                 try:
                     await self.direct_sender(targetChannelLink, fileDownloadLink,
-                                             extension, voicePlayable, streamableFiles)
+                                             extension, voicePlayable, streamableFiles, f)
                 except errors.rpcerrorlist.FloodWaitError as e:
                     self.logger.info(
                         f'Flood wait error!\nWaiting for {e.seconds} seconds before retry!')
                     await asyncio.sleep(int(e.seconds) + 5)
                     await self.direct_sender(targetChannelLink, fileDownloadLink,
-                                             extension, voicePlayable, streamableFiles)
+                                             extension, voicePlayable, streamableFiles, f)
 
             except (errors.rpcerrorlist.WebpageCurlFailedError, errors.rpcerrorlist.ExternalUrlInvalidError):
                 downloadedFile = await self.seedr.downloadFile(f.get('id'),
@@ -210,27 +210,56 @@ class Torrenter:
                 os.remove(downloadedFile)
 
     async def direct_sender(self, targetChannelLink, fileDownloadLink,
-                            extension, voicePlayable, streamableFiles):
-        if extension in voicePlayable:
-            while not self.tracker.request_allowed(targetChannelLink):
-                await asyncio.sleep(1)
-            self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
-                                          supports_streaming=True,
-                                          progress_callback=self.uploadPcb),
+                            extension, voicePlayable, streamableFiles, f):
+        try:
+            if extension in voicePlayable:
+                while not self.tracker.request_allowed(targetChannelLink):
+                    await asyncio.sleep(1)
+                self.ts(self.client.send_file(targetChannelLink, fileDownloadLink,
+                                              supports_streaming=True,
+                                              progress_callback=self.uploadPcb),
+                        self.client.loop).result()
+            elif extension in streamableFiles:
+                while not self.tracker.request_allowed(targetChannelLink):
+                    await asyncio.sleep(1)
+                self.ts(self.client.send_file(targetChannelLink,
+                                              fileDownloadLink, supports_streaming=True,
+                                              progress_callback=self.uploadPcb),
+                        self.client.loop).result()
+            else:
+                while not self.tracker.request_allowed(targetChannelLink):
+                    await asyncio.sleep(1)
+                self.ts(self.client.send_file(
+                    targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
                     self.client.loop).result()
-        elif extension in streamableFiles:
-            while not self.tracker.request_allowed(targetChannelLink):
-                await asyncio.sleep(1)
-            self.ts(self.client.send_file(targetChannelLink,
-                                          fileDownloadLink, supports_streaming=True,
-                                          progress_callback=self.uploadPcb),
-                    self.client.loop).result()
-        else:
-            while not self.tracker.request_allowed(targetChannelLink):
-                await asyncio.sleep(1)
-            self.ts(self.client.send_file(
-                targetChannelLink, fileDownloadLink, progress_callback=self.uploadPcb),
-                self.client.loop).result()
+        except errors.rpcerrorlist.ExternalUrlInvalidError:
+            downloadedFile = await self.seedr.downloadFile(f.get('id'),
+                                                           f'{self.downloadLocation}/{f.get("name")}')
+            if not self.validSize(downloadedFile):
+                self.logger.info('File size is not valid ...')
+            toSend = open(downloadedFile, 'rb')
+            try:
+                fastFile = self.ts(upload_file(self.client, toSend, fileName=f.get("name"),
+                                               progress_callback=self.uploadPcb),
+                                   self.client.loop).result()
+                self.logger.info('Fast file created!')
+            except ValueError:
+                await asyncio.sleep(0.8)
+                await self.setStatus(
+                    f'The file {f.get("name")} is too large to upload!')
+                self.logger.info(
+                    f'File is too larget to upload:  {self.fileName}')
+                return
+            try:
+                await self.local_sender(extension, voicePlayable, streamableFiles,
+                                        downloadedFile, targetChannelLink, fastFile)
+            except errors.rpcerrorlist.FloodWaitError as e:
+                self.logger.info(
+                    f'Flood wait error! \nWaiting for {e.seconds} seconds before retry!')
+                await asyncio.sleep(int(e.seconds) + 5)
+                await self.local_sender(extension, voicePlayable, streamableFiles,
+                                        downloadedFile, targetChannelLink, fastFile)
+            os.remove(downloadedFile)
 
     async def local_sender(self, extension, voicePlayable, streamableFiles,
                            downloadedFile, targetChannelLink, fastFile):
