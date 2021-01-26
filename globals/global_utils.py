@@ -35,5 +35,6 @@ def get_random_proxy():
     return proxy
 
 
-p = get_random_proxy()
-print(p)
+if __name__ == '__main__':
+    p = get_random_proxy()
+    print(p)
