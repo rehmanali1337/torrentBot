@@ -1,4 +1,3 @@
-
 from youtube_dl import YoutubeDL
 import youtube_dl
 import os
@@ -14,6 +13,7 @@ import logging
 import requests
 import re
 from datetime import datetime as dt
+from globals.global_utils import get_random_proxy
 
 
 class YTube:
@@ -33,6 +33,7 @@ class YTube:
             os.makedirs(self.downloadLocation)
             os.makedirs(self.thumbnailDir)
         self.ts = asyncio.run_coroutine_threadsafe
+        self.proxy = get_random_proxy()
 
     @staticmethod
     def filterTitle(title):
@@ -46,6 +47,7 @@ class YTube:
 
     async def sendVideo(self):
         ydl_opts = {
+            'proxy': self.proxy
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url=self.url, download=False)
@@ -69,7 +71,8 @@ class YTube:
         ydl_opts = {
             'format': f'{self.formatID}+bestaudio',
             'progress_hooks': [self.ytDownloadPcb],
-            'outtmpl': self.downloadLocation + '/%(title)s.%(ext)s'
+            'outtmpl': self.downloadLocation + '/%(title)s.%(ext)s',
+            'proxy': self.proxy
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             ydl.download([self.url])
@@ -151,7 +154,9 @@ Total Size : {d["_total_bytes_str"]}'
             self.ts(self.setStatus(f'{message}'), self.bot.loop).result()
 
     async def sendAudio(self):
-        with youtube_dl.YoutubeDL({}) as ydl:
+        with youtube_dl.YoutubeDL({
+            'proxy': self.proxy
+        }) as ydl:
             info = ydl.extract_info(url=self.url, download=False)
             self.title = f'{info["title"]}.mp3'
             channel_name = info["uploader"]
@@ -167,7 +172,8 @@ Total Size : {d["_total_bytes_str"]}'
                 'preferredcodec': 'mp3',
                 'preferredquality': '320',
             }],
-            'outtmpl': self.downloadLocation + '/ %(title)s.%(ext)s'
+            'outtmpl': self.downloadLocation + '/ %(title)s.%(ext)s',
+            'proxy': self.proxy
         }
         with youtube_dl.YoutubeDL(ydl_opts) as ydl:
             info = ydl.extract_info(url=self.url, download=True)
@@ -212,7 +218,9 @@ Total Size : {d["_total_bytes_str"]}'
     async def sendPlayList(self):
         pass
         ydl = youtube_dl.YoutubeDL(
-            {'outtmpl': '%(id)s%(ext)s', 'quiet': True, })
+            {'outtmpl': '%(id)s%(ext)s', 'quiet': True,
+             'proxy': self.proxy
+             })
         video = ""
 
         with ydl:
@@ -241,9 +249,11 @@ Total Size : {d["_total_bytes_str"]}'
 
 
 def getAllFormats(url):
+    proxy = get_random_proxy()
     ydl_opts = {
         'forcethumbnail': True,
-        'ignoreerrors': True
+        'ignoreerrors': True,
+        'proxy': proxy,
     }
     with youtube_dl.YoutubeDL(ydl_opts) as ydl:
         info = ydl.extract_info(url=url, download=False)
@@ -261,8 +271,9 @@ def getAllFormats(url):
 def getVideosLinks(playListURL):
     # ydl = youtube_dl.YoutubeDL(
     # {'outtmpl': '%(id)s%(ext)s', 'quiet': True, })
+    proxy = get_random_proxy()
     video = ""
-    with youtube_dl.YoutubeDL({'ignoreerrors': True}) as ydl:
+    with youtube_dl.YoutubeDL({'ignoreerrors': True, 'proxy': proxy}) as ydl:
         result = ydl.extract_info(url=playListURL,
                                   download=False)  # We just want to extract the info
         if 'entries' in result:
