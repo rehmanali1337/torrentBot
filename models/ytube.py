@@ -14,6 +14,7 @@ import requests
 import re
 from datetime import datetime as dt
 from globals.global_utils import get_random_proxy
+from globals.global_utils import NoWorkingProxy
 
 
 class YTube:
@@ -216,7 +217,6 @@ Total Size : {d["_total_bytes_str"]}'
         return filename
 
     async def sendPlayList(self):
-        pass
         ydl = youtube_dl.YoutubeDL(
             {'outtmpl': '%(id)s%(ext)s', 'quiet': True,
              'proxy': self.proxy
