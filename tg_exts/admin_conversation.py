@@ -585,7 +585,7 @@ class AdminConversation:
                 await self.conv.send_message('Playlist job added to the queue!', buttons=btns)
                 await self.conv.wait_event(events.NewMessage(func=self.utils.checkButton(['Back'])))
                 await self.home()
-            q = await self.conv.send_message('Please while fetching available video formats ..')
+            q = await self.conv.send_message('Please wait while fetching available video formats ..')
             try:
                 formats = getAllFormats(link)
             except NoWorkingProxy:
