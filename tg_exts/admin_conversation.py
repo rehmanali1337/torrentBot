@@ -1,4 +1,3 @@
-
 from utils.Utils import Utils
 from utils.db import DB
 from telethon import events
@@ -8,6 +7,7 @@ from queue import Queue
 from models.seedr import Seedr
 from models.ytube import getAllFormats, getVideosLinks
 import logging
+from globals.global_utils import NoWorkingProxy
 
 
 class AdminConversation:
@@ -586,7 +586,11 @@ class AdminConversation:
                 await self.conv.wait_event(events.NewMessage(func=self.utils.checkButton(['Back'])))
                 await self.home()
             q = await self.conv.send_message('Please while fetching available video formats ..')
-            formats = getAllFormats(link)
+            try:
+                formats = getAllFormats(link)
+            except NoWorkingProxy:
+                await self.conv.send_message('No Working Proxy found!\nPlease try again later!')
+                await self.home()
             filteredFormats = self.utils.filterFormats(formats)
             btns = []
             tmp = []

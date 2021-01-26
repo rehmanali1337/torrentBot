@@ -170,12 +170,16 @@ class Torrenter:
             try:
                 fileDownloadLink = await self.seedr.getDownloadLink(f['id'])
                 try:
+                    while not self.tracker.request_allowed(targetChannelLink):
+                        await asyncio.sleep(1)
                     await self.direct_sender(targetChannelLink, fileDownloadLink,
                                              extension, voicePlayable, streamableFiles, f)
                 except errors.rpcerrorlist.FloodWaitError as e:
                     self.logger.info(
                         f'Flood wait error!\nWaiting for {e.seconds} seconds before retry!')
                     await asyncio.sleep(int(e.seconds) + 5)
+                    while not self.tracker.request_allowed(targetChannelLink):
+                        await asyncio.sleep(1)
                     await self.direct_sender(targetChannelLink, fileDownloadLink,
                                              extension, voicePlayable, streamableFiles, f)
 
@@ -199,12 +203,16 @@ class Torrenter:
                         f'File is too larget to upload:  {self.fileName}')
                     continue
                 try:
+                    while not self.tracker.request_allowed(targetChannelLink):
+                        await asyncio.sleep(1)
                     await self.local_sender(extension, voicePlayable, streamableFiles,
                                             downloadedFile, targetChannelLink, fastFile)
                 except errors.rpcerrorlist.FloodWaitError as e:
                     self.logger.info(
                         f'Flood wait error! \nWaiting for {e.seconds} seconds before retry!')
                     await asyncio.sleep(int(e.seconds) + 5)
+                    while not self.tracker.request_allowed(targetChannelLink):
+                        await asyncio.sleep(1)
                     await self.local_sender(extension, voicePlayable, streamableFiles,
                                             downloadedFile, targetChannelLink, fastFile)
                 os.remove(downloadedFile)
