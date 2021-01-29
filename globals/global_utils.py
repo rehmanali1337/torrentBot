@@ -43,23 +43,26 @@ def is_blacklisted(proxy):
 
 
 def get_random_proxy():
-    f = open('youtube_proxies.json', 'r')
+    f = open('nord_ips.json', 'r')
     config = json.load(f)
+    proxies = list(config.get("PROXIES_LIST"))
     checked = []
+    username = config.get("USERNAME")
+    password = config.get("PASSWORD")
+    port = 1080
     while True:
-        proxies = list(config.get("PROXIES_LIST"))
         index = randrange(len(proxies))
-        proxy = proxies[index]
+        ip = proxies[index]
+        currentProxy = f'socks5://{username}:{password}@{ip}:{port}'
         if proxies in checked:
+            continue
+        if is_blacklisted(currentProxy):
+            checked.append(currentProxy)
             continue
         if proxies == checked:
             raise NoWorkingProxy
-        if is_blacklisted(proxy):
-            checked.append(proxy)
-            continue
-        return proxy
+        return currentProxy
 
 
 if __name__ == '__main__':
-    p = get_random_proxy()
-    print(p)
+    get_random_proxy()
