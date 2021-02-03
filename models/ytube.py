@@ -250,6 +250,7 @@ Total Size : {d["_total_bytes_str"]}'
 
 def getAllFormats(url):
     proxy = get_random_proxy()
+    print(f'\nUsing proxy : {proxy}\n')
     ydl_opts = {
         'forcethumbnail': True,
         'ignoreerrors': True,
@@ -272,10 +273,15 @@ def getVideosLinks(playListURL):
     # ydl = youtube_dl.YoutubeDL(
     # {'outtmpl': '%(id)s%(ext)s', 'quiet': True, })
     proxy = get_random_proxy()
+    print(f'\nUsing proxy : {proxy}\n')
     video = ""
     with youtube_dl.YoutubeDL({'ignoreerrors': True, 'proxy': proxy}) as ydl:
-        result = ydl.extract_info(url=playListURL,
-                                  download=False)  # We just want to extract the info
+        while True:
+            result = ydl.extract_info(url=playListURL,
+                                      download=False)  # We just want to extract the info
+            if result is None:
+                continue
+            break
         if 'entries' in result:
             # Can be a playlist or a list of videos
             video = result['entries']
